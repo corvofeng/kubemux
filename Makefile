@@ -8,7 +8,7 @@ docs:
 	go run cmd/gendoc/main.go
 
 build:
-	go build -o gmux ./
+	go build -o gmux ./cmd/gmux
 
 install:
 	go mod tidy
