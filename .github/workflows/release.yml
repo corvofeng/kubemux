@@ -6,14 +6,14 @@ jobs:
   release:
     name: Upload releases
     runs-on: ubuntu-latest
-    if: "!contains(github.ref, '-')" # skip prereleases
+    if: "!contains(github.ref, '-')"  # skip prereleases
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.20
+          go-version: 1.28
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2
         with:
