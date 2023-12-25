@@ -1,4 +1,7 @@
 name: Release
+permissions:
+  contents: write
+
 on:
   push:
     tags: 'v*'
@@ -18,7 +21,7 @@ jobs:
         uses: goreleaser/goreleaser-action@v2
         with:
           version: latest
-          args: release --rm-dist
+          args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       # - name: Docker push on master
