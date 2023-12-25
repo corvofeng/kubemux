@@ -11,4 +11,4 @@ build:
 	go build -o gmux ./
 
 install:
-	go install ./cmd/... 
+	go mod tidy
