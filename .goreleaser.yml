@@ -14,18 +14,18 @@ builds:
       - -s -w
 
 archives:
-  # - format: tar.gz
-  #   id: tar.gz
-  #   name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
-  #   files:
-  #     - etc/*
-  #     - LICENSE
-  #     - README.md
-  #     - docs/*
+  - format: tar.gz
+    id: tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+    files:
+      - etc/*
+      - LICENSE
+      - README.md
+      - docs/*
 
-  - format: binary
-    id: binary
-    name_template: "{{ .Binary }}_{{ .Os }}_{{ .Arch }}"
+  # - format: binary
+  #   id: binary
+  #   name_template: "{{ .Binary }}_{{ .Os }}_{{ .Arch }}"
 
 # brews:
 #   - tap:
