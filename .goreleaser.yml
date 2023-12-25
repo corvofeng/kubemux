@@ -13,17 +13,6 @@ builds:
     ldflags:
       - -s -w
 
-  - env:
-      - CGO_ENABLED=0
-    goos:
-      - linux
-      - darwin
-    id: "gmux"
-    binary: gmux
-    main: ./cmd/gmux
-    ldflags:
-      - -s -w
-
 archives:
   # - format: tar.gz
   #   id: tar.gz
