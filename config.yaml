@@ -1,0 +1,13 @@
+name: mysession
+root: ~/
+windows:
+  - name: editor
+    root: ~/
+    panes:
+      - vim
+      - ls -alh
+  - name: shell
+    panes:
+      - git status
+      - pwd
+      - tig
