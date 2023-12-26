@@ -3,111 +3,157 @@ package lib
 import (
 	"fmt"
 	"testing"
+
+	"github.com/tj/assert"
 )
 
-func TestParseConfig(t *testing.T) {
-	configData := []byte(`{
-		"Name": "my_session",
-		"Root": "~/GitRepo",
-		"Windows": [
-			{
-				"Name": "editor",
-				"Root": "~/GitRepo",
-				"Panes": [
-					{"Command": "vim"},
-					{"Command": "ls -alh"},
-					{"Command": "pwd"}
-				]
-			},
-			{
-				"Name": "shell",
-				"Root": "/tmp",
-				"Panes": [
-					{"Command": "htop"}
-				]
-			}
-		]
-	}`)
+func TestERBToTemplate(t *testing.T) {
+	// 定义模板字符串
+	rubyTemplate := `
+	name: <%= @settings["project"] %>
+	root: ~/RiotGames
 
-	expectedConfig := Config{
-		Name: "my_session",
-		Root: "~/GitRepo",
-		Windows: []Window{
-			{
-				Name: "editor",
-				Root: "~/GitRepo",
-				Panes: []Pane{
-					{Command: "vim"},
-					{Command: "ls -alh"},
-					{Command: "pwd"},
-				},
-			},
-			{
-				Name: "shell",
-				Root: "/tmp",
-				Panes: []Pane{
-					{Command: "htop"},
-				},
-			},
-		},
+	socket_name: <%= @settings["project"] %>
+	on_project_start:
+	  - export KUBECONFIG=~/.kube/config-<%= @settings["project"] %>
+	  - export TMUX_SSH_PORT="$(python3 -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1])')"
+	  - export TMUX_SSH_HOST="<%= @settings["host"] %>"
+	startup_window: kubectl
+	`
+
+	// 定义要传递给模板的数据（这里使用 map）
+	settings := map[string]string{
+		"project": "YourProject",
+		"host":    "YourHost",
 	}
+	result := RenderERB(rubyTemplate, settings)
 
-	parsedConfig, err := ParseConfig(configData)
-	if err != nil {
-		t.Errorf("Error parsing config: %s", err)
-	}
+	expectedOutput := `
+	name: YourProject
+	root: ~/RiotGames
 
-	if fmt.Sprintf("%+v", parsedConfig) != fmt.Sprintf("%+v", expectedConfig) {
-		t.Errorf("Parsed config doesn't match expected config")
+	socket_name: YourProject
+	on_project_start:
+	  - export KUBECONFIG=~/.kube/config-YourProject
+	  - export TMUX_SSH_PORT="$(python3 -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1])')"
+	  - export TMUX_SSH_HOST="YourHost"
+	startup_window: kubectl
+	`
+	if result != expectedOutput {
+		fmt.Printf("Unit test failed: Output does not match expected result:\n%s\n%s\n", result, expectedOutput)
 	}
 }
 
-func TestParseYAMLConfig(t *testing.T) {
-	yamlData := []byte(`
-name: my_session
-root: ~/GitRepo
+func TestParseConfig(t *testing.T) {
+	yamlData := `
+name: test-config
+tmux: 3.2
+root: /path/to/project
+socket_name: test-socket
+on_project_start:
+  - echo "Project started"
 windows:
-  - name: editor
-    root: ~/GitRepo
-    panes:
-      - command: vim
-      - command: ls -alh
-      - command: pwd
-  - name: shell
-    root: /tmp
-    panes:
-      - command: htop
-  `)
+  - editor:
+      layout: main-vertical
+      panes:
+        - vim
+        - guard
+  - server: bundle exec rails s
+  - logs: tail -f log/development.log
+  - proxy:
+      layout: main-vertical
+      panes:
+        - lsof -i :30001
+        - ls -alh
+        - pwd
+        - htop
+  - server: echo $PROJ
+  - kubectl: kubectl get pods
+`
+
+	config, err := ParseConfig(yamlData)
+	assert.NoError(t, err)
 
 	expectedConfig := Config{
-		Name: "my_session",
-		Root: "~/GitRepo",
-		Windows: []Window{
+		Name:       "test-config",
+		Root:       "/path/to/project",
+		SocketName: "test-socket",
+		OnProjectStart: []string{
+			"echo \"Project started\"",
+		},
+		RaWWindows: []map[string]interface{}{
 			{
-				Name: "editor",
-				Root: "~/GitRepo",
-				Panes: []Pane{
-					{Command: "vim"},
-					{Command: "ls -alh"},
-					{Command: "pwd"},
+				"editor": map[string]interface{}{
+					"layout": "main-vertical",
+					"panes": []interface{}{
+						"vim",
+						"guard",
+					},
 				},
 			},
 			{
-				Name: "shell",
-				Root: "/tmp",
-				Panes: []Pane{
-					{Command: "htop"},
+				"server": "bundle exec rails s",
+			},
+			{
+				"logs": "tail -f log/development.log",
+			},
+			{
+				"proxy": map[string]interface{}{
+					"layout": "main-vertical",
+					"panes": []interface{}{
+						"lsof -i :30001",
+						"ls -alh",
+						"pwd",
+						"htop",
+					},
+				},
+			},
+			{
+				"server": "echo $PROJ",
+			},
+			{
+				"kubectl": "kubectl get pods",
+			},
+		},
+		Windows: []map[string]MultiPane{
+			{
+				"editor": {
+					Layout: "main-vertical",
+					Panes:  []string{"vim", "guard"},
+				},
+			},
+			{
+				"server": {
+					Panes: []string{"bundle exec rails s"},
+				},
+			},
+			{
+				"logs": {
+					Panes: []string{"tail -f log/development.log"},
+				},
+			},
+			{
+				"proxy": {
+					Layout: "main-vertical",
+					Panes:  []string{"lsof -i :30001", "ls -alh", "pwd", "htop"},
+				},
+			},
+			{
+				"server": {
+					Panes: []string{"echo $PROJ"},
+				},
+			},
+			{
+				"kubectl": {
+					Panes: []string{"kubectl get pods"},
 				},
 			},
 		},
 	}
 
-	parsedConfig, err := ParseYAMLConfig(yamlData)
-	if err != nil {
-		t.Errorf("Error parsing YAML config: %s", err)
-	}
-
-	if fmt.Sprintf("%+v", parsedConfig) != fmt.Sprintf("%+v", expectedConfig) {
-		t.Errorf("Parsed YAML config doesn't match expected config:\n%s\n%s\n", parsedConfig, expectedConfig)
-	}
+	assert.Equal(t, expectedConfig.Name, config.Name)
+	assert.Equal(t, expectedConfig.Tmux, config.Tmux)
+	assert.Equal(t, expectedConfig.Root, config.Root)
+	assert.Equal(t, expectedConfig.OnProjectStart, config.OnProjectStart)
+	assert.Equal(t, expectedConfig.Windows, config.Windows)
 }

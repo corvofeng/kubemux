@@ -1,0 +1,23 @@
+name: <%= @settings["project"] %>
+root: ~/GitRepo
+
+socket_name: <%= @settings["project"] %>
+on_project_start:
+  - export KUBECONFIG=~/.kube/config-<%= @settings["project"] %>
+  - export TMUX_SSH_PORT="$(python3 -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1])')"
+  - export TMUX_SSH_HOST="<%= @settings["host"] %>"
+startup_window: kubectl
+
+# SSH Check https://gist.github.com/ianchen06/a064bbaca22e4e98b216947fd33cdf1d
+
+windows:
+  - proxy:
+      layout: main-vertical
+      panes:
+        - startup:
+          - ls -alh
+          - yq -i e '.current-context |= "tpl-<%= @settings["project"] %>"' $KUBECONFIG
+          - yq -i e '.contexts[0].name |= "tpl-<%= @settings["project"] %>"' $KUBECONFIG
+          - yq -i e ".clusters[0].cluster.proxy-url |=\"socks5://127.0.0.1:$TMUX_SSH_PORT\"" $KUBECONFIG
+          - ssh -D $TMUX_SSH_PORT $TMUX_SSH_HOST
+  - kubectl: ls # kubectl get pods

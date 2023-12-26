@@ -11,9 +11,9 @@ import (
 	"os"
 	"os/exec"
 	"text/template"
-)
 
-// Window 结构体表示一个 tmux 窗口的配置
+	"gmux/cmd/gmux/internal/command"
+)
 
 func main() {
 	log.SetFormatter(&log.TextFormatter{
@@ -23,41 +23,43 @@ func main() {
 	})
 
 	log.SetLevel(log.DebugLevel)
-	// 读取配置文件
-	// data, err := os.ReadFile("config.yaml")
-	// if err != nil {
-	// 	panic(err)
-	// }
+	logger := log.New()
 
-	// 解析配置文件
-	// var config Config
-	// err = yaml.Unmarshal(data, &config)
-	// if err != nil {
-	// 	panic(err)
-	// }
+	if err := command.Root(logger).Execute(); err != nil {
+		log.Fatal(err)
+	}
+}
 
-	// 假设我们有以下配置
+func main2() {
+	log.SetFormatter(&log.TextFormatter{
+		DisableColors: true,
+		FullTimestamp: true,
+		DisableQuote:  true,
+	})
+
+	log.SetLevel(log.DebugLevel)
+
 	config := lib.Config{
 		Name: "my_session",
 		Root: "~/GitRepo",
-		Windows: []lib.Window{
-			{
-				Name: "editor",
-				Root: "~/GitRepo",
-				Panes: []lib.Pane{
-					{Command: "vim"},
-					{Command: "ls -alh"},
-					{Command: "pwd"},
-				},
-			},
-			{
-				Name: "shell",
-				Root: "/tmp",
-				Panes: []lib.Pane{
-					{Command: "htop"},
-				},
-			},
-		},
+		// Windows: []lib.Window{
+		// 	{
+		// 		Name: "editor",
+		// 		Root: "~/GitRepo",
+		// 		Panes: []lib.Pane{
+		// 			{Command: "vim"},
+		// 			{Command: "ls -alh"},
+		// 			{Command: "pwd"},
+		// 		},
+		// 	},
+		// 	{
+		// 		Name: "shell",
+		// 		Root: "/tmp",
+		// 		Panes: []lib.Pane{
+		// 			{Command: "htop"},
+		// 		},
+		// 	},
+		// },
 	}
 
 	config.Tmux = fmt.Sprintf("tmux -L %s", config.Name)
