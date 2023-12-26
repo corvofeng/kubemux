@@ -1,7 +1,6 @@
 package command
 
 import (
-	"fmt"
 	"gmux/lib"
 	"os"
 	"path"
@@ -77,12 +76,13 @@ func (c *rootCmd) Run(cmd *cobra.Command, args []string) error {
 	if len(varMap) > 0 {
 		projContent = lib.RenderERB(projContent, varMap)
 	}
-	config, err := lib.ParseYAMLConfig([]byte(projContent))
+	config, err := lib.ParseConfig(projContent)
 	if err != nil {
 		return err
 	}
 
-	fmt.Printf("%+v\n", config)
+	lib.RunTmux(c.Logger, &config)
+	c.Logger.Debug(config)
 
 	return nil
 }

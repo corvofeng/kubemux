@@ -115,45 +115,115 @@ windows:
 				"kubectl": "kubectl get pods",
 			},
 		},
-		Windows: []map[string]MultiPane{
+		Windows: []Window{
 			{
-				"editor": {
-					Layout: "main-vertical",
-					Panes:  []string{"vim", "guard"},
-				},
+				Name:   "editor",
+				Layout: "main-vertical",
+				Root:   "/path/to/project",
+				Panes:  []string{"vim", "guard"},
 			},
 			{
-				"server": {
-					Panes: []string{"bundle exec rails s"},
-				},
+				Name:  "server",
+				Root:  "/path/to/project",
+				Panes: []string{"bundle exec rails s"},
 			},
 			{
-				"logs": {
-					Panes: []string{"tail -f log/development.log"},
-				},
+				Name:  "logs",
+				Root:  "/path/to/project",
+				Panes: []string{"tail -f log/development.log"},
 			},
 			{
-				"proxy": {
-					Layout: "main-vertical",
-					Panes:  []string{"lsof -i :30001", "ls -alh", "pwd", "htop"},
-				},
+				Name:   "proxy",
+				Root:   "/path/to/project",
+				Layout: "main-vertical",
+				Panes:  []string{"lsof -i :30001", "ls -alh", "pwd", "htop"},
 			},
 			{
-				"server": {
-					Panes: []string{"echo $PROJ"},
-				},
+				Name:  "server",
+				Root:  "/path/to/project",
+				Panes: []string{"echo $PROJ"},
 			},
 			{
-				"kubectl": {
-					Panes: []string{"kubectl get pods"},
-				},
+				Name:  "kubectl",
+				Root:  "/path/to/project",
+				Panes: []string{"kubectl get pods"},
 			},
 		},
 	}
 
 	assert.Equal(t, expectedConfig.Name, config.Name)
-	assert.Equal(t, expectedConfig.Tmux, config.Tmux)
 	assert.Equal(t, expectedConfig.Root, config.Root)
 	assert.Equal(t, expectedConfig.OnProjectStart, config.OnProjectStart)
+	assert.Equal(t, expectedConfig.Windows, config.Windows)
+}
+
+func TestConfigWithWindowRoot(t *testing.T) {
+	yamlData := `
+root: /tmp
+windows:
+  - first:
+      layout: main-vertical
+      panes:
+        - vim
+        - guard
+  - editor:
+      root: /var/run
+      panes:
+        - guard
+`
+
+	config, err := ParseConfig(yamlData)
+	assert.NoError(t, err)
+
+	expectedConfig := Config{
+		Root: "/tmp",
+		Windows: []Window{
+			{
+				Name:   "first",
+				Layout: "main-vertical",
+				Root:   "/tmp",
+				Panes:  []string{"vim", "guard"},
+			},
+			{
+				Name:  "editor",
+				Root:  "/var/run",
+				Panes: []string{"guard"},
+			},
+		},
+	}
+	assert.Equal(t, expectedConfig.Root, config.Root)
+	assert.Equal(t, expectedConfig.Windows, config.Windows)
+}
+
+func TestConfigWithCommands(t *testing.T) {
+	yamlData := `
+root: /tmp
+windows:
+  - first:
+    - vim
+    - guard
+  - editor:
+    - guard
+`
+
+	config, err := ParseConfig(yamlData)
+	assert.NoError(t, err)
+
+	expectedConfig := Config{
+		Root: "/tmp",
+		Windows: []Window{
+			{
+				Name:  "first",
+				Root:  "/tmp",
+				Panes: []string{"vim", "guard"},
+			},
+			{
+				Name:  "editor",
+				Root:  "/tmp",
+				Panes: []string{"guard"},
+			},
+		},
+	}
+	assert.Equal(t, expectedConfig.Root, config.Root)
 	assert.Equal(t, expectedConfig.Windows, config.Windows)
 }

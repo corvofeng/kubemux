@@ -1,15 +1,14 @@
 package lib
 
 import (
+	"fmt"
+	"reflect"
 	"strings"
 	"text/template"
 
 	"gopkg.in/yaml.v2"
 )
 
-type TestConfig struct {
-	Name string `yaml:"name"`
-}
 type Config struct {
 	Name       string `yaml:"name"`
 	Tmux       string `yaml:"-"`
@@ -41,7 +40,7 @@ type Config struct {
 	We can't parse it in the golang, so I use map to save them
 	*/
 	RaWWindows []map[string]interface{} `yaml:"windows"`
-	Windows    []map[string]MultiPane   `yaml:"-"`
+	Windows    []Window                 `yaml:"-"`
 }
 
 func ParseConfig(data string) (Config, error) {
@@ -51,34 +50,53 @@ func ParseConfig(data string) (Config, error) {
 		return config, err
 	}
 	err := parseWindowConfig(&config)
+	config.Tmux = "tmux -L " + config.Name
 	return config, err
 }
 
 func parseWindowConfig(config *Config) error {
-	config.Windows = make([]map[string]MultiPane, len(config.RaWWindows))
+	config.Windows = make([]Window, len(config.RaWWindows))
 	for i, rawWindow := range config.RaWWindows {
-		window := make(map[string]MultiPane)
+		window := Window{}
 		for name, value := range rawWindow {
 			if s, ok := value.(string); ok {
-				window[name] = MultiPane{Panes: []string{s}}
+				window = Window{Name: name, Panes: []string{s}}
+			} else if s, ok := value.([]interface{}); ok {
+				pane := Window{}
+				for _, p := range s {
+					pane.Panes = append(pane.Panes, p.(string))
+				}
+				window = Window{
+					Name:  name,
+					Panes: pane.Panes,
+				}
 			} else if mp, ok := value.(map[interface{}]interface{}); ok {
-				pane := MultiPane{Layout: mp["layout"].(string)}
+				pane := Window{}
+				if mp["layout"] != nil {
+					pane.Layout = mp["layout"].(string)
+				}
+				if mp["root"] != nil {
+					pane.Root = mp["root"].(string)
+				}
 				for _, p := range mp["panes"].([]interface{}) {
 					pane.Panes = append(pane.Panes, p.(string))
 				}
-				window[name] = MultiPane{Layout: pane.Layout, Panes: pane.Panes}
+				window = Window{
+					Name:   name,
+					Layout: pane.Layout,
+					Root:   pane.Root,
+					Panes:  pane.Panes,
+				}
+			} else {
+				fmt.Println("Get string", value, reflect.TypeOf(value))
+			}
+			if window.Root == "" {
+				window.Root = config.Root
 			}
 		}
 		config.Windows[i] = window
 	}
-
 	return nil
-}
-
-func ParseYAMLConfig(data []byte) (Config, error) {
-	var config Config
-	err := yaml.Unmarshal(data, &config)
-	return config, err
 }
 
 type TemplateData struct {

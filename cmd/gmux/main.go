@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"gmux/lib"
 	"gmux/lib/asset"
 
@@ -61,8 +60,6 @@ func main2() {
 		// 	},
 		// },
 	}
-
-	config.Tmux = fmt.Sprintf("tmux -L %s", config.Name)
 
 	funcMap := template.FuncMap{
 		// The name "inc" is what the function will be called in the template text.

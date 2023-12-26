@@ -7,6 +7,8 @@ set -ex
 
 {{if not (TmuxHasSession $.Name)}}
 {{- range $i, $window := $.Windows }}
+
+
 #============================================================
 # Window: {{$window.Name}}
 {{$winId := inc $i}}
@@ -14,7 +16,7 @@ set -ex
 {{if eq $i 0}}
 {{$.Tmux}} new-session -d -s {{$.Name}} -n {{$window.Name}}
 {{ else }}
-{{$.Tmux}} new-window -c {{$window.Root}} -t {{$.Name}}:{{$winId}} -n {{$window.Name}}
+{{$.Tmux}} new-window -c {{$.Root}} -t {{$.Name}}:{{$winId}} -n {{$window.Name}}
 {{- end }}
 # 设置窗口的根目录
 # {{- if $window.Root}}
@@ -27,16 +29,15 @@ set -ex
 
 {{- range $j, $pane := $window.Panes}}
 {{$panelId := inc $j}}
-
-{{$.Tmux}} list-panes -a
-# 分割窗口并运行命令
 {{$.Tmux}} split-window -c {{$window.Root}} -t {{$.Name}}:{{$winId}}
-{{$.Tmux}} send-keys -t {{$.Name}}:{{$winId}}.{{$panelId}} "{{$pane.Command}}" C-m
+{{$.Tmux}} select-layout -t {{$.Name}}:{{$winId}} tiled
+{{$.Tmux}} send-keys -t {{$.Name}}:{{$winId}}.{{$panelId}} "{{$pane}}" C-m
 {{- end}}
 
 # 关闭最后一个多余的pane
 {{$.Tmux}} kill-pane -t {{$.Name}}:{{$winId}}.0
 #================================================================
+{{$.Tmux}} list-panes -a
 {{- end}}
 {{ else }}
 # Already have a session
