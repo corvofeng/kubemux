@@ -32,6 +32,8 @@ func TmuxHasSession(sessionName string) bool {
 	return false
 }
 
+// https://github.com/ruby/shellwords
+// https://apidock.com/ruby/v2_5_5/Shellwords/shellescape
 func shellescape(str string) string {
 	str = regexp.MustCompile(`[^A-Za-z0-9_\-.,:+/@\n]`).ReplaceAllStringFunc(str, func(s string) string {
 		return "\\" + s
