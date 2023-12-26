@@ -84,7 +84,6 @@ func RunTmux(log log.FieldLogger, config *Config) {
 	}
 	tmpfile.Close()
 
-	log.Debug(script.String())
 	cmd := exec.Command(tmpfile.Name())
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

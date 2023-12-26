@@ -1,7 +1,7 @@
 package asset
 
 const BashScriptTemplate = `#!/bin/bash
-set -ex
+# set -ex
 # 创建 tmux 会话
 {{$.Tmux}} start-server;
 
@@ -9,7 +9,7 @@ set -ex
 {{- range $i, $window := $.Windows }}
 
 
-#============================================================
+#====================== start ================================
 # Window: {{$window.Name}}
 {{$winId := Inc $i}}
 
@@ -23,7 +23,6 @@ set -ex
 # {{$.Tmux}} send-keys -t {{$.Name}}:{{$i}} "cd {{$window.Root}}" C-m
 # {{- end}}
 
-# {{$.Tmux}} select-layout -t {{$.Name}}:{{$winId}} tiled
 {{$.Tmux}} select-layout -t {{$.Name}}:{{$winId}} main-vertical
 
 
@@ -40,7 +39,9 @@ set -ex
 
 # 关闭最后一个多余的pane
 {{$.Tmux}} kill-pane -t {{$.Name}}:{{$winId}}.0
-#================================================================
+
+#======================  end  ================================
+
 {{$.Tmux}} list-panes -a
 {{- end}}
 {{ else }}

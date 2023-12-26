@@ -49,8 +49,13 @@ func ParseConfig(data string) (Config, error) {
 	if err := yaml.Unmarshal([]byte(data), &config); err != nil {
 		return config, err
 	}
-	err := parseWindowConfig(&config)
+
 	config.Tmux = "tmux -L " + config.Name
+	if config.Root == "" {
+		config.Root = "~/"
+	}
+	fmt.Println(config.Root)
+	err := parseWindowConfig(&config)
 	return config, err
 }
 
@@ -60,9 +65,11 @@ func parseWindowConfig(config *Config) error {
 		window := Window{}
 		for name, value := range rawWindow {
 			if s, ok := value.(string); ok {
-				window = Window{Name: name, Panes: []Pane{
-					{Commands: []string{s}},
-				}}
+				window = Window{
+					Name: name,
+					Panes: []Pane{
+						{Commands: []string{s}},
+					}}
 			} else if arr, ok := value.([]interface{}); ok {
 				pane := Window{}
 				for _, p := range arr {
@@ -70,19 +77,6 @@ func parseWindowConfig(config *Config) error {
 						pane.Panes = append(pane.Panes, Pane{
 							Commands: []string{cmd},
 						})
-						// } else if paneMp, ok := p.(map[interface{}]interface{}); ok {
-						// 	paneTmp := Pane{}
-						// 	for _, v := range paneMp {
-						// 		if cmds, ok := v.([]interface{}); ok {
-						// 			for _, cmd := range cmds {
-						// 				paneTmp.Commands = append(paneTmp.Commands, cmd.(string))
-						// 			}
-						// 		}
-
-						// 	}
-						// 	fmt.Println(paneTmp)
-						// 	pane.Panes = append(pane.Panes, paneTmp)
-
 					}
 				}
 				window = Window{

@@ -254,6 +254,9 @@ windows:
           - ssh -D $TMUX_SSH_PORT $TMUX_SSH_HOST
         - help:
           - pwd
+  - p1:
+    - ls
+    - pwd
   - first:
     - vim
     - guard
@@ -286,6 +289,18 @@ windows:
 				},
 			},
 			{
+				Name: "p1",
+				Root: "/tmp",
+				Panes: []Pane{
+					{
+						Commands: []string{"ls"},
+					},
+					{
+						Commands: []string{"pwd"},
+					},
+				},
+			},
+			{
 				Name: "first",
 				Root: "/tmp",
 				Panes: []Pane{
@@ -297,6 +312,7 @@ windows:
 					},
 				},
 			},
+
 			{
 				Name: "editor",
 				Root: "/tmp",
