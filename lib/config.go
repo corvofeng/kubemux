@@ -54,7 +54,6 @@ func ParseConfig(data string) (Config, error) {
 	if config.Root == "" {
 		config.Root = "~/"
 	}
-	fmt.Println(config.Root)
 	err := parseWindowConfig(&config)
 	return config, err
 }
