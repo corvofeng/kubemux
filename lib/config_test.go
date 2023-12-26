@@ -120,33 +120,69 @@ windows:
 				Name:   "editor",
 				Layout: "main-vertical",
 				Root:   "/path/to/project",
-				Panes:  []string{"vim", "guard"},
+				Panes: []Pane{
+					{
+						Commands: []string{"vim"},
+					},
+					{
+						Commands: []string{"guard"},
+					},
+				},
 			},
 			{
-				Name:  "server",
-				Root:  "/path/to/project",
-				Panes: []string{"bundle exec rails s"},
+				Name: "server",
+				Root: "/path/to/project",
+				Panes: []Pane{
+					{
+						Commands: []string{"bundle exec rails s"},
+					},
+				},
 			},
 			{
-				Name:  "logs",
-				Root:  "/path/to/project",
-				Panes: []string{"tail -f log/development.log"},
+				Name: "logs",
+				Root: "/path/to/project",
+				Panes: []Pane{
+					{
+						Commands: []string{"tail -f log/development.log"},
+					},
+				},
 			},
 			{
 				Name:   "proxy",
 				Root:   "/path/to/project",
 				Layout: "main-vertical",
-				Panes:  []string{"lsof -i :30001", "ls -alh", "pwd", "htop"},
+				Panes: []Pane{
+					{
+						Commands: []string{"lsof -i :30001"},
+					},
+					{
+						Commands: []string{"ls -alh"},
+					},
+					{
+						Commands: []string{"pwd"},
+					},
+					{
+						Commands: []string{"htop"},
+					},
+				},
 			},
 			{
-				Name:  "server",
-				Root:  "/path/to/project",
-				Panes: []string{"echo $PROJ"},
+				Name: "server",
+				Root: "/path/to/project",
+				Panes: []Pane{
+					{
+						Commands: []string{"echo $PROJ"},
+					},
+				},
 			},
 			{
-				Name:  "kubectl",
-				Root:  "/path/to/project",
-				Panes: []string{"kubectl get pods"},
+				Name: "kubectl",
+				Root: "/path/to/project",
+				Panes: []Pane{
+					{
+						Commands: []string{"kubectl get pods"},
+					},
+				},
 			},
 		},
 	}
@@ -182,12 +218,23 @@ windows:
 				Name:   "first",
 				Layout: "main-vertical",
 				Root:   "/tmp",
-				Panes:  []string{"vim", "guard"},
+				Panes: []Pane{
+					{
+						Commands: []string{"vim"},
+					},
+					{
+						Commands: []string{"guard"},
+					},
+				},
 			},
 			{
-				Name:  "editor",
-				Root:  "/var/run",
-				Panes: []string{"guard"},
+				Name: "editor",
+				Root: "/var/run",
+				Panes: []Pane{
+					{
+						Commands: []string{"guard"},
+					},
+				},
 			},
 		},
 	}
@@ -199,6 +246,14 @@ func TestConfigWithCommands(t *testing.T) {
 	yamlData := `
 root: /tmp
 windows:
+  - proxy:
+      layout: main-vertical
+      panes:
+        - startup:
+          - ls -alh
+          - ssh -D $TMUX_SSH_PORT $TMUX_SSH_HOST
+        - help:
+          - pwd
   - first:
     - vim
     - guard
@@ -213,14 +268,43 @@ windows:
 		Root: "/tmp",
 		Windows: []Window{
 			{
-				Name:  "first",
-				Root:  "/tmp",
-				Panes: []string{"vim", "guard"},
+				Name:   "proxy",
+				Root:   "/tmp",
+				Layout: "main-vertical",
+				Panes: []Pane{
+					{
+						Commands: []string{
+							"ls -alh",
+							"ssh -D $TMUX_SSH_PORT $TMUX_SSH_HOST",
+						},
+					},
+					{
+						Commands: []string{
+							"pwd",
+						},
+					},
+				},
 			},
 			{
-				Name:  "editor",
-				Root:  "/tmp",
-				Panes: []string{"guard"},
+				Name: "first",
+				Root: "/tmp",
+				Panes: []Pane{
+					{
+						Commands: []string{"vim"},
+					},
+					{
+						Commands: []string{"guard"},
+					},
+				},
+			},
+			{
+				Name: "editor",
+				Root: "/tmp",
+				Panes: []Pane{
+					{
+						Commands: []string{"guard"},
+					},
+				},
 			},
 		},
 	}

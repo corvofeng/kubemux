@@ -7,6 +7,9 @@ docs:
 	rm -rf etc && mkdir -p etc/man/man1 && mkdir -p etc/completion
 	go run cmd/gendoc/main.go
 
+test:
+	go test gmux/lib -v
+
 build:
 	go build -o gmux ./cmd/gmux
 

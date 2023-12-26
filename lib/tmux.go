@@ -5,6 +5,7 @@ import (
 	"gmux/lib/asset"
 	"os"
 	"os/exec"
+	"regexp"
 	"strings"
 	"text/template"
 
@@ -31,10 +32,22 @@ func TmuxHasSession(sessionName string) bool {
 	return false
 }
 
+func shellescape(str string) string {
+	str = regexp.MustCompile(`[^A-Za-z0-9_\-.,:+/@\n]`).ReplaceAllStringFunc(str, func(s string) string {
+		return "\\" + s
+	})
+	str = strings.ReplaceAll(str, "\n", `'\n'`)
+	if str == "" {
+		return "''"
+	}
+	return str
+}
+
 func RunTmux(log log.FieldLogger, config *Config) {
 	funcMap := template.FuncMap{
 		"TmuxHasSession": TmuxHasSession,
-		"inc": func(i int) int {
+		"Safe":           shellescape,
+		"Inc": func(i int) int {
 			return i + 1
 		},
 	}

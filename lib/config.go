@@ -60,35 +60,71 @@ func parseWindowConfig(config *Config) error {
 		window := Window{}
 		for name, value := range rawWindow {
 			if s, ok := value.(string); ok {
-				window = Window{Name: name, Panes: []string{s}}
-			} else if s, ok := value.([]interface{}); ok {
+				window = Window{Name: name, Panes: []Pane{
+					{Commands: []string{s}},
+				}}
+			} else if arr, ok := value.([]interface{}); ok {
 				pane := Window{}
-				for _, p := range s {
-					pane.Panes = append(pane.Panes, p.(string))
+				for _, p := range arr {
+					if cmd, ok := p.(string); ok {
+						pane.Panes = append(pane.Panes, Pane{
+							Commands: []string{cmd},
+						})
+						// } else if paneMp, ok := p.(map[interface{}]interface{}); ok {
+						// 	paneTmp := Pane{}
+						// 	for _, v := range paneMp {
+						// 		if cmds, ok := v.([]interface{}); ok {
+						// 			for _, cmd := range cmds {
+						// 				paneTmp.Commands = append(paneTmp.Commands, cmd.(string))
+						// 			}
+						// 		}
+
+						// 	}
+						// 	fmt.Println(paneTmp)
+						// 	pane.Panes = append(pane.Panes, paneTmp)
+
+					}
 				}
 				window = Window{
 					Name:  name,
 					Panes: pane.Panes,
 				}
 			} else if mp, ok := value.(map[interface{}]interface{}); ok {
-				pane := Window{}
+				w := Window{}
 				if mp["layout"] != nil {
-					pane.Layout = mp["layout"].(string)
+					w.Layout = mp["layout"].(string)
 				}
 				if mp["root"] != nil {
-					pane.Root = mp["root"].(string)
+					w.Root = mp["root"].(string)
 				}
-				for _, p := range mp["panes"].([]interface{}) {
-					pane.Panes = append(pane.Panes, p.(string))
+				if mp["panes"] != nil {
+					if panes, ok := mp["panes"].([]interface{}); ok {
+						for _, pane := range panes {
+							paneTmp := Pane{}
+							if paneCmd, ok := pane.(string); ok {
+								paneTmp.Commands = append(paneTmp.Commands, paneCmd)
+							} else if paneMap, ok := pane.(map[interface{}]interface{}); ok {
+								for _, v := range paneMap {
+									if cmds, ok := v.([]interface{}); ok {
+										for _, cmd := range cmds {
+											paneTmp.Commands = append(paneTmp.Commands, cmd.(string))
+										}
+									}
+								}
+							}
+							w.Panes = append(w.Panes, paneTmp)
+						}
+					}
 				}
+
 				window = Window{
 					Name:   name,
-					Layout: pane.Layout,
-					Root:   pane.Root,
-					Panes:  pane.Panes,
+					Layout: w.Layout,
+					Root:   w.Root,
+					Panes:  w.Panes,
 				}
 			} else {
-				fmt.Println("Get string", value, reflect.TypeOf(value))
+				fmt.Println("Get unknow string", value, reflect.TypeOf(value))
 			}
 			if window.Root == "" {
 				window.Root = config.Root

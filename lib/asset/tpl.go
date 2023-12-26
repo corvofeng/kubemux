@@ -11,7 +11,7 @@ set -ex
 
 #============================================================
 # Window: {{$window.Name}}
-{{$winId := inc $i}}
+{{$winId := Inc $i}}
 
 {{if eq $i 0}}
 {{$.Tmux}} new-session -d -s {{$.Name}} -n {{$window.Name}}
@@ -28,10 +28,14 @@ set -ex
 
 
 {{- range $j, $pane := $window.Panes}}
-{{$panelId := inc $j}}
+{{$panelId := Inc $j}}
 {{$.Tmux}} split-window -c {{$window.Root}} -t {{$.Name}}:{{$winId}}
 {{$.Tmux}} select-layout -t {{$.Name}}:{{$winId}} tiled
-{{$.Tmux}} send-keys -t {{$.Name}}:{{$winId}}.{{$panelId}} "{{$pane}}" C-m
+
+{{- range $k, $cmd := $pane.Commands}}
+{{$.Tmux}} send-keys -t {{$.Name}}:{{$winId}}.{{$panelId}} {{$cmd | Safe }} C-m
+{{- end}}
+
 {{- end}}
 
 # 关闭最后一个多余的pane
