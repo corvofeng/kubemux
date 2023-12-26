@@ -82,7 +82,7 @@ func RunTmux(log log.FieldLogger, config *Config) {
 	}
 	tmpfile.Close()
 
-	log.Info(script.String())
+	log.Debug(script.String())
 	cmd := exec.Command(tmpfile.Name())
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -91,4 +91,16 @@ func RunTmux(log log.FieldLogger, config *Config) {
 		log.Error(err)
 	}
 
+	attachCmd := exec.Command("tmux", "-L", config.Name, "attach-session", "-t", config.Name)
+	attachCmd.Stdin = os.Stdin
+	attachCmd.Stdout = os.Stdout
+	attachCmd.Stderr = os.Stderr
+
+	// 使用 Start 开始命令并等待其完成
+	if err := attachCmd.Start(); err != nil {
+		panic(err)
+	}
+	if err := attachCmd.Wait(); err != nil {
+		panic(err)
+	}
 }
