@@ -21,7 +21,12 @@ windows:
   - p3: htop
 ' > ~/.tmuxinator/gmux.yml
 
-./gmux -p gmux
+cd /tmp
+wget https://github.com/corvofeng/gmux/releases/download/v0.3.2/gmux_linux_amd64.tar.gz
+tar -zxvf gmux_linux_amd64.tar.gz
+sudo install -v gmux /usr/local/bin
+
+gmux -p gmux
 ```
 
 
