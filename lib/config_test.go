@@ -81,7 +81,7 @@ windows:
 		OnProjectStart: []string{
 			"echo \"Project started\"",
 		},
-		RaWWindows: []map[string]interface{}{
+		RawWindows: []map[string]interface{}{
 			{
 				"editor": map[string]interface{}{
 					"layout": "main-vertical",
@@ -326,4 +326,44 @@ windows:
 	}
 	assert.Equal(t, expectedConfig.Root, config.Root)
 	assert.Equal(t, expectedConfig.Windows, config.Windows)
+}
+
+func TestConfigWithProjectStart(t *testing.T) {
+	yamlData := `
+root: /tmp
+on_project_start: echo "Ingame" && unset KUBECONFIG && export KUBECONFIG=~/.kube/config-bugly && echo $KUBECONFIG
+`
+
+	config, err := ParseConfig(yamlData)
+	assert.NoError(t, err)
+
+	expectedConfig := Config{
+		Root: "/tmp",
+		OnProjectStart: []string{
+			`echo "Ingame" && unset KUBECONFIG && export KUBECONFIG=~/.kube/config-bugly && echo $KUBECONFIG`,
+		},
+	}
+
+	assert.Equal(t, expectedConfig.OnProjectStart, config.OnProjectStart)
+
+	yamlData = `
+root: /tmp
+on_project_start:
+  - export KUBECONFIG=~/.kube/config
+  - export TMUX_SSH_PORT="$(python3 -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1])')"
+  - export TMUX_SSH_HOST="aa"
+`
+	config, err = ParseConfig(yamlData)
+	assert.NoError(t, err)
+
+	expectedConfig = Config{
+		Root: "/tmp",
+		OnProjectStart: []string{
+			`export KUBECONFIG=~/.kube/config`,
+			`export TMUX_SSH_PORT="$(python3 -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1])')"`,
+			`export TMUX_SSH_HOST="aa"`,
+		},
+	}
+
+	assert.Equal(t, expectedConfig.OnProjectStart, config.OnProjectStart)
 }

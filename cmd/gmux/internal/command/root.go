@@ -12,15 +12,17 @@ import (
 )
 
 type rootCmd struct {
-	Logger log.FieldLogger
+	Logger *log.Logger
 }
 
 var flagSets []string
 var flagProject string
 var flagDirectory string
-var logLevel string
 
-func Root(logger log.FieldLogger) *cobra.Command {
+// var logLevel string
+var flagDebug bool
+
+func Root(logger *log.Logger) *cobra.Command {
 	rootCmd := &rootCmd{
 		Logger: logger,
 	}
@@ -34,7 +36,8 @@ func Root(logger log.FieldLogger) *cobra.Command {
 	cmd.PersistentFlags().StringSliceVar(&flagSets, "set", []string{}, "Set key-value pair")
 	cmd.PersistentFlags().StringVarP(&flagProject, "project", "p", "default", "Specify the project we want to use")
 	cmd.PersistentFlags().StringVarP(&flagDirectory, "directory", "d", "~/.tmuxinator", "Specify the tmuxinator directory we want to use")
-	cmd.PersistentFlags().StringVarP(&logLevel, "lvl", "l", "INFO", "Specify log level")
+	cmd.PersistentFlags().BoolVarP(&flagDebug, "debug", "", false, "If we are in debug mode")
+	// cmd.PersistentFlags().StringVarP(&logLevel, "lvl", "l", "INFO", "Specify log level")
 	return cmd
 }
 
@@ -80,9 +83,11 @@ func (c *rootCmd) Run(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-
+	config.Debug = flagDebug
+	if flagDebug {
+		c.Logger.SetLevel(log.DebugLevel)
+	}
 	lib.RunTmux(c.Logger, &config)
-	c.Logger.Debug(config)
 
 	return nil
 }

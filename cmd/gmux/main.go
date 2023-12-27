@@ -13,7 +13,6 @@ func main() {
 		DisableQuote:  true,
 	})
 
-	log.SetLevel(log.DebugLevel)
 	logger := log.New()
 
 	if err := command.Root(logger).Execute(); err != nil {

@@ -1,14 +1,20 @@
 package asset
 
 const BashScriptTemplate = `#!/bin/bash
-# set -ex
-# 创建 tmux 会话
+
+{{ if $.Debug }}
+set -ex
+{{ end }}
+
 {{$.Tmux}} start-server;
 
 {{if not (TmuxHasSession $.Name)}}
+
+{{- range $i, $cmd:= $.OnProjectStart }}
+{{$cmd}}
+{{- end }}
+
 {{- range $i, $window := $.Windows }}
-
-
 #====================== start ================================
 # Window: {{$window.Name}}
 {{$winId := Inc $i}}

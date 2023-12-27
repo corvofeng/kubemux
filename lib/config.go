@@ -13,9 +13,18 @@ type Config struct {
 	Name       string `yaml:"name"`
 	Tmux       string `yaml:"-"`
 	Root       string `yaml:"root"`
+	Debug      bool
 	SocketName string `yaml:"socket_name"`
 
-	OnProjectStart []string `yaml:"on_project_start"`
+	/**
+		There are two types of on_project_start:
+		on_project_start:
+	  	- export KUBECONFIG=~/.kube/config-<%= @settings["project"] %>
+
+		on_project_start: echo "Ingame" && unset KUBECONFIG && export KUBECONFIG=~/.kube/config-bugly && echo $KUBECONFIG
+	*/
+	RawOnProjectStart interface{} `yaml:"on_project_start"`
+	OnProjectStart    []string
 
 	/**
 	Since the yaml config in old tmuxinator is irregular like:
@@ -39,7 +48,7 @@ type Config struct {
 
 	We can't parse it in the golang, so I use map to save them
 	*/
-	RaWWindows []map[string]interface{} `yaml:"windows"`
+	RawWindows []map[string]interface{} `yaml:"windows"`
 	Windows    []Window                 `yaml:"-"`
 }
 
@@ -54,13 +63,18 @@ func ParseConfig(data string) (Config, error) {
 	if config.Root == "" {
 		config.Root = "~/"
 	}
-	err := parseWindowConfig(&config)
-	return config, err
+	if err := parseWindowConfig(&config); err != nil {
+		return config, err
+	}
+	if err := parseProjectStart(&config); err != nil {
+		return config, err
+	}
+	return config, nil
 }
 
 func parseWindowConfig(config *Config) error {
-	config.Windows = make([]Window, len(config.RaWWindows))
-	for i, rawWindow := range config.RaWWindows {
+	config.Windows = make([]Window, len(config.RawWindows))
+	for i, rawWindow := range config.RawWindows {
 		window := Window{}
 		for name, value := range rawWindow {
 			if s, ok := value.(string); ok {
@@ -125,6 +139,24 @@ func parseWindowConfig(config *Config) error {
 		}
 		config.Windows[i] = window
 	}
+	return nil
+}
+
+func parseProjectStart(config *Config) error {
+	if config.RawOnProjectStart == nil {
+		return nil
+	}
+	arr := []string{}
+	if s, ok := config.RawOnProjectStart.(string); ok {
+		arr = []string{s}
+	} else if cmds, ok := config.RawOnProjectStart.([]interface{}); ok {
+		for _, v := range cmds {
+			if s, ok := v.(string); ok {
+				arr = append(arr, s)
+			}
+		}
+	}
+	config.OnProjectStart = arr
 	return nil
 }
 
