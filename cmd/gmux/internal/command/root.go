@@ -38,6 +38,7 @@ func Root(logger *log.Logger) *cobra.Command {
 	cmd.PersistentFlags().StringVarP(&flagDirectory, "directory", "d", "~/.tmuxinator", "Specify the tmuxinator directory we want to use")
 	cmd.PersistentFlags().BoolVarP(&flagDebug, "debug", "", false, "If we are in debug mode")
 	// cmd.PersistentFlags().StringVarP(&logLevel, "lvl", "l", "INFO", "Specify log level")
+	cmd.AddCommand(versionCmd())
 	return cmd
 }
 

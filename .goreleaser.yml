@@ -11,7 +11,8 @@ builds:
     binary: gmux
     main: ./cmd/gmux
     ldflags:
-      - -s -w
+      - -s -w -X gmux/lib.Version={{.Version}}
+
 
 archives:
   - format: tar.gz
