@@ -48,7 +48,9 @@ set -ex
 
 #======================  end  ================================
 
+{{- if $.Debug }}
 {{$.Tmux}} list-panes -a
+{{- end }}
 {{- end}}
 {{ else }}
 # Already have a session
