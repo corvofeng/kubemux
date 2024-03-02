@@ -60,3 +60,5 @@ changelog:
       - '^docs:'
       - '^test:'
 
+brews:
+  - name: gmux
