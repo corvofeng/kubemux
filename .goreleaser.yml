@@ -70,7 +70,6 @@ brews:
     owner: corvofeng
     name: homebrew-tap
     token: "{{ .Env.HOMEBREW_PERSONAL_AUTH_TOKEN }}"
-
   #  token: ${{ secrets.}}
   # name: gmux
   # description: "A simple port-forward wrapper tool for multiple pods/deployments/services."
