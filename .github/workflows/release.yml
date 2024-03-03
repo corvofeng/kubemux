@@ -25,6 +25,7 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HOMEBREW_PERSONAL_AUTH_TOKEN: ${{ secrets.HOMEBREW_PERSONAL_AUTH_TOKEN }}
       # - name: Docker push on master
       #   run: |
       #     # Build & publish on master
