@@ -60,9 +60,6 @@ changelog:
       - '^docs:'
       - '^test:'
 
-# brews:
-#   - name: gmux
-
 brews:
 - name: gmux
   homepage: "https://github.com/corvofeng/gmux"
@@ -70,12 +67,3 @@ brews:
     owner: corvofeng
     name: homebrew-tap
     token: "{{ .Env.HOMEBREW_PERSONAL_AUTH_TOKEN }}"
-  #  token: ${{ secrets.}}
-  # name: gmux
-  # description: "A simple port-forward wrapper tool for multiple pods/deployments/services."
-  # folder: Formula
-  # install: |
-  #   bin.install "gmux"
-  # test: |
-  #   assert_match /A simple port-forward wrapper tool for multiple pods\/deployments\/services/, shell_output("#{bin}/kubepfm -h", 0)
- 
