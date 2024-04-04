@@ -49,6 +49,7 @@ func RunTmux(log log.FieldLogger, config *Config) {
 	funcMap := template.FuncMap{
 		"TmuxHasSession": TmuxHasSession,
 		"Safe":           shellescape,
+		"StringsJoin":    strings.Join,
 		"Inc": func(i int) int {
 			return i + 1
 		},
@@ -91,8 +92,10 @@ func RunTmux(log log.FieldLogger, config *Config) {
 	if err := cmd.Run(); err != nil {
 		log.Error(err)
 	}
+	var args []string = []string{"-L", config.Name, "attach-session", "-t", config.Name}
+	args = append(args, config.TmuxArgs...)
 
-	attachCmd := exec.Command("tmux", "-L", config.Name, "attach-session", "-t", config.Name)
+	attachCmd := exec.Command("tmux", args...)
 	attachCmd.Stdin = os.Stdin
 	attachCmd.Stdout = os.Stdout
 	attachCmd.Stderr = os.Stderr

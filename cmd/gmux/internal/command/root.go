@@ -35,10 +35,12 @@ func Root(logger *log.Logger) *cobra.Command {
 
 	cmd.PersistentFlags().StringSliceVar(&flagSets, "set", []string{}, "Set key-value pair")
 	cmd.PersistentFlags().StringVarP(&flagProject, "project", "p", "default", "Specify the project we want to use")
-	cmd.PersistentFlags().StringVarP(&flagDirectory, "directory", "d", "~/.tmuxinator", "Specify the tmuxinator directory we want to use")
+	cmd.PersistentFlags().StringVarP(&flagDirectory, "directory", "", "~/.tmuxinator", "Specify the tmuxinator directory we want to use")
 	cmd.PersistentFlags().BoolVarP(&flagDebug, "debug", "", false, "If we are in debug mode")
+
 	// cmd.PersistentFlags().StringVarP(&logLevel, "lvl", "l", "INFO", "Specify log level")
-	cmd.AddCommand(versionCmd())
+	// cmd.AddCommand(tmuxCmd())
+	// cmd.AddCommand(versionCmd())
 	return cmd
 }
 
@@ -85,6 +87,7 @@ func (c *rootCmd) Run(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	config.Debug = flagDebug
+	config.TmuxArgs = append(config.TmuxArgs, args...)
 	if flagDebug {
 		c.Logger.SetLevel(log.DebugLevel)
 	}

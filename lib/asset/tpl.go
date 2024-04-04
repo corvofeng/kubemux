@@ -66,4 +66,6 @@ set -ex
 
 # 附加到 tmux 会话
 #{{$.Tmux}} attach-session -t {{.Name}}
+# echo {{$.Tmux}} {{ StringsJoin .TmuxArgs " "}}
+# {{$.Tmux}} {{ StringsJoin .TmuxArgs " "}}
 `

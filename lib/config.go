@@ -14,6 +14,7 @@ type Config struct {
 	Tmux       string `yaml:"-"`
 	Root       string `yaml:"root"`
 	Debug      bool
+	TmuxArgs   []string
 	SocketName string `yaml:"socket_name"`
 
 	/**
