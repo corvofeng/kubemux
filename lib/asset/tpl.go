@@ -56,6 +56,13 @@ set -ex
 # Already have a session
 {{- end }}
 
+# show host name and IP address on left side of status bar
+# {{$.Tmux}} set-option -g status-left-length 60
+# {{$.Tmux}} set-option -g status-left "#[fg=colour198]: #h : #[fg=brightblue]#(curl ipv4.ip.sb) #(ifconfig eno1 | grep 'inet ' | awk '{print \"eno1 \" \$2}')"
+
+# {{$.Tmux}} set-option -g status-right-length 60
+# {{$.Tmux}} set-option -g status-right "#[fg=blue]#S #I:#P #[fg=yellow]: %d %b %Y #[fg=green]: %l:%M %p : #(date -u | awk '{print $4}') :"
+# {{$.Tmux}} set-option -g status-right "#[fg=blue]#(tmux-cpu --no-color)"
 
 # 附加到 tmux 会话
 #{{$.Tmux}} attach-session -t {{.Name}}
