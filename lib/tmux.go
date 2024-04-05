@@ -5,12 +5,32 @@ import (
 	"gmux/lib/asset"
 	"os"
 	"os/exec"
+	"path"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"text/template"
 
 	log "github.com/sirupsen/logrus"
 )
+
+func ParseConfigPath(flagDirectory, flagProject string) string {
+
+	if strings.HasPrefix(flagDirectory, "~/") {
+		dirname, _ := os.UserHomeDir()
+		flagDirectory = filepath.Join(dirname, flagDirectory[2:])
+	}
+	// if we have the full path for project
+	if strings.HasPrefix(flagProject, ".") || strings.HasPrefix(flagProject, "/") {
+		flagDirectory = ""
+	}
+
+	if strings.HasSuffix(flagProject, "yml") {
+		flagProject = strings.TrimSuffix(flagProject, ".yml")
+	}
+
+	return path.Join(flagDirectory, flagProject+".yml")
+}
 
 func TmuxHasSession(sessionName string) bool {
 	cmd := exec.Command("tmux", "-L", sessionName, "ls")

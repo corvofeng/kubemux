@@ -3,8 +3,6 @@ package command
 import (
 	"gmux/lib"
 	"os"
-	"path"
-	"path/filepath"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -60,20 +58,8 @@ func (c *rootCmd) Run(cmd *cobra.Command, args []string) error {
 		varMap[keyValue[0]] = keyValue[1]
 	}
 
-	if strings.HasPrefix(flagDirectory, "~/") {
-		dirname, _ := os.UserHomeDir()
-		flagDirectory = filepath.Join(dirname, flagDirectory[2:])
-	}
-	// if we have the full path for project
-	if strings.HasPrefix(flagProject, ".") || strings.HasPrefix(flagProject, "/") {
-		flagDirectory = ""
-	}
-
-	if strings.HasSuffix(flagProject, "yml") {
-		flagProject = strings.TrimSuffix(flagProject, ".yml")
-	}
-
-	content, err := os.ReadFile(path.Join(flagDirectory, flagProject+".yml"))
+	configPath := lib.ParseConfigPath(flagDirectory, flagProject)
+	content, err := os.ReadFile(configPath)
 	if err != nil {
 		return err
 	}
