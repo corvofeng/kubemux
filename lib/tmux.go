@@ -92,8 +92,16 @@ func RunTmux(log log.FieldLogger, config *Config) {
 	if err := cmd.Run(); err != nil {
 		log.Error(err)
 	}
-	var args []string = []string{"-L", config.Name, "attach-session", "-t", config.Name}
-	args = append(args, config.TmuxArgs...)
+
+	var args []string
+	if len(config.TmuxArgs) == 0 { // default to attach-session
+		args = []string{"-L", config.Name, "attach-session", "-t", config.Name}
+		args = append(args, config.TmuxArgs...)
+	} else { // If we have custom args, use them
+		args = []string{"-L", config.Name}
+		args = append(args, config.TmuxArgs...)
+
+	}
 
 	attachCmd := exec.Command("tmux", args...)
 	attachCmd.Stdin = os.Stdin
@@ -105,6 +113,7 @@ func RunTmux(log log.FieldLogger, config *Config) {
 		panic(err)
 	}
 	if err := attachCmd.Wait(); err != nil {
-		panic(err)
+		log.Error(err)
 	}
+
 }
