@@ -24,7 +24,7 @@ sudo install -v gmux /usr/local/bin
 
 ## Usage
 
-```
+```bash
 mkdir ~/.tmuxinator
 
 echo '
@@ -45,4 +45,15 @@ gmux -p gmux
 Here is an example:
 
 [![asciicast](https://asciinema.org/a/lVIIOwzWwFAL611IwUeZpohoy.svg)](https://asciinema.org/a/lVIIOwzWwFAL611IwUeZpohoy)
+
+
+### tmux arg support
+
+You can put the tmux args after the `--`.
+
+```bash
+gmux -p gmux -- -V
+# If -d is specified, any other clients attached to the session are detached.
+gmux -p gmux -- at -d 
+```
 
