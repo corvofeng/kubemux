@@ -57,10 +57,14 @@ func (c *rootCmd) Run(cmd *cobra.Command, args []string) error {
 		keyValue := parseKeyValue(set)
 		varMap[keyValue[0]] = keyValue[1]
 	}
+	if flagDebug {
+		c.Logger.SetLevel(log.DebugLevel)
+	}
 
 	configPath := lib.ParseConfigPath(flagDirectory, flagProject)
 	content, err := os.ReadFile(configPath)
 	if err != nil {
+		c.Logger.Errorf("Error reading config file: %s %s", configPath, err)
 		return err
 	}
 	projContent := string(content)
@@ -70,13 +74,12 @@ func (c *rootCmd) Run(cmd *cobra.Command, args []string) error {
 	}
 	config, err := lib.ParseConfig(projContent)
 	if err != nil {
+		c.Logger.Errorf("Error parsing config file: %s %s", configPath, err)
 		return err
 	}
+	config.TmuxArgs = args
 	config.Debug = flagDebug
-	config.TmuxArgs = append(config.TmuxArgs, args...)
-	if flagDebug {
-		c.Logger.SetLevel(log.DebugLevel)
-	}
+
 	lib.RunTmux(c.Logger, &config)
 
 	return nil
