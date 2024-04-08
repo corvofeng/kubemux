@@ -2,6 +2,7 @@ package lib
 
 import (
 	"bytes"
+	"fmt"
 	"gmux/lib/asset"
 	"os"
 	"os/exec"
@@ -65,6 +66,25 @@ func shellescape(str string) string {
 	return str
 }
 
+/*
+*
+  - ConfigCheck for tmux config
+    We have such script template:
+    {{$.Tmux}} split-window -c {{$window.Root}} -t {{$.Name}}:{{$winId}}
+    We can't predict the program behavior if $window.Root is empty.
+*/
+func ConfigCheck(config *Config) error {
+	if config.Root == "" {
+		return fmt.Errorf("tmux Root is required")
+	}
+	for _, window := range config.Windows {
+		if window.Root == "" {
+			return fmt.Errorf("window root for %s is required", window.Name)
+		}
+	}
+	return nil
+}
+
 func RunTmux(log log.FieldLogger, config *Config) {
 	funcMap := template.FuncMap{
 		"TmuxHasSession": TmuxHasSession,
@@ -73,6 +93,10 @@ func RunTmux(log log.FieldLogger, config *Config) {
 		"Inc": func(i int) int {
 			return i + 1
 		},
+	}
+	if err := ConfigCheck(config); err != nil {
+		log.Error(err)
+		return
 	}
 
 	// 创建一个新模板并解析模板字符串

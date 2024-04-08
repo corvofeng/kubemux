@@ -50,6 +50,43 @@ func parseKeyValue(arg string) []string {
 	return nil
 }
 
+// inject the variables
+func (c *rootCmd) ParseConfig(varMap map[string]string, configPath string) (lib.Config, error) {
+	content, err := os.ReadFile(configPath)
+	if err != nil {
+		c.Logger.Errorf("Error reading config file: %s %s", configPath, err)
+		return lib.Config{}, err
+	}
+	projContent := string(content)
+	projContent = lib.RenderERB(projContent, varMap)
+	config, err := lib.ParseConfig(projContent)
+	if err != nil {
+		c.Logger.Errorf("Error parsing config file: %s %s", configPath, err)
+		return lib.Config{}, err
+	}
+
+	return config, nil
+}
+func CreateDefaultConfig() lib.Config {
+	config := lib.Config{
+		Name: "gmux-default",
+		Tmux: "tmux -L gmux-default",
+		Root: "~/",
+		Windows: []lib.Window{
+			{
+				Name: "default",
+				Root: "~/",
+				Panes: []lib.Pane{
+					{
+						Commands: []string{"ls"},
+					},
+				},
+			},
+		},
+	}
+	return config
+}
+
 func (c *rootCmd) Run(cmd *cobra.Command, args []string) error {
 	varMap := make(map[string]string)
 	for _, set := range flagSets {
@@ -62,21 +99,18 @@ func (c *rootCmd) Run(cmd *cobra.Command, args []string) error {
 	}
 
 	configPath := lib.ParseConfigPath(flagDirectory, flagProject)
-	content, err := os.ReadFile(configPath)
-	if err != nil {
-		c.Logger.Errorf("Error reading config file: %s %s", configPath, err)
-		return err
-	}
-	projContent := string(content)
+	var config lib.Config
 
-	if len(varMap) > 0 {
-		projContent = lib.RenderERB(projContent, varMap)
+	if _, err := os.Stat(configPath); os.IsNotExist(err) {
+		c.Logger.Warn("Although the gmux works without a config file, it is recommended to create one.")
+		config = CreateDefaultConfig()
+	} else {
+		if config, err = c.ParseConfig(varMap, configPath); err != nil {
+			c.Logger.Errorf("Parse config error: %s", err)
+			return err
+		}
 	}
-	config, err := lib.ParseConfig(projContent)
-	if err != nil {
-		c.Logger.Errorf("Error parsing config file: %s %s", configPath, err)
-		return err
-	}
+
 	config.TmuxArgs = args
 	config.Debug = flagDebug
 
