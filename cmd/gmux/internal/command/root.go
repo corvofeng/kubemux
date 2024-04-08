@@ -103,6 +103,7 @@ func (c *rootCmd) Run(cmd *cobra.Command, args []string) error {
 
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
 		c.Logger.Warn("Although the gmux works without a config file, it is recommended to create one.")
+		c.Logger.Warn("Please refer to https://github.com/corvofeng/gmux")
 		config = CreateDefaultConfig()
 	} else {
 		if config, err = c.ParseConfig(varMap, configPath); err != nil {
