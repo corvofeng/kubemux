@@ -52,8 +52,10 @@ Here is an example:
 You can put the tmux args after the `--`.
 
 ```bash
-gmux -p gmux -- -V
+➜  ~ gmux -p gmux -- -V
+tmux 3.4
+
 # If -d is specified, any other clients attached to the session are detached.
-gmux -p gmux -- at -d 
+➜  ~ gmux -p gmux -- at -d
 ```
 
