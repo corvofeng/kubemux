@@ -67,3 +67,15 @@ brews:
     owner: corvofeng
     name: homebrew-tap
     token: "{{ .Env.HOMEBREW_PERSONAL_AUTH_TOKEN }}"
+
+nfpms: #build:linux
+  - license: MIT
+    maintainer: corvofeng<corvofeng@gmail.com>
+    homepage: "https://github.com/corvofeng/gmux"
+    bindir: /usr
+    description: A tmux wrapper like tmuxinator
+    file_name_template: '{{ .PackageName }}_{{ .Os }}_{{ .Arch }}{{ with .Arm }}v{{ . }}{{ end }}{{ with .Mips }}_{{ . }}{{ end }}{{ if not (eq .Amd64 "v1") }}{{ .Amd64 }}{{ end }}'
+    formats:
+      - deb
+      - rpm
+      - archlinux
