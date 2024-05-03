@@ -65,7 +65,7 @@ windows:
   - p3: htop
 ' > ~/.tmuxinator/kubemux.yml
 
-kubemux -p gmux
+kubemux -p kubemux
 ```
 Here is an example:
 
@@ -77,10 +77,10 @@ Here is an example:
 You can put the tmux args after the `--`.
 
 ```bash
-➜  ~ kubemux -p gmux -- -V
+➜  ~ kubemux -p kubemux -- -V
 tmux 3.4
 
 # If -d is specified, any other clients attached to the session are detached.
-➜  ~ kubemux -p gmux -- at -d
+➜  ~ kubemux -p kubemux -- at -d
 ```
 

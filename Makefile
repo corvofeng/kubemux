@@ -8,10 +8,10 @@ docs:
 	go run cmd/gendoc/main.go
 
 test:
-	go test gmux/lib -v
+	go test kubemux/lib -v
 
 build:
-	go build -o gmux ./cmd/gmux
+	go build -o kubemux ./cmd/kubemux
 
 install:
 	go mod tidy

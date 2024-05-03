@@ -9,9 +9,9 @@ builds:
       - darwin
     id: "kubemux"
     binary: kubemux
-    main: ./cmd/gmux
+    main: ./cmd/kubemux
     ldflags:
-      - -s -w -X gmux/lib.Version={{.Version}}
+      - -s -w -X kubemux/lib.Version={{.Version}}
 
 
 archives:

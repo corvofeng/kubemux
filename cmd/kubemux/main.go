@@ -3,7 +3,7 @@ package main
 import (
 	log "github.com/sirupsen/logrus"
 
-	"gmux/cmd/gmux/internal/command"
+	"kubemux/cmd/kubemux/internal/command"
 )
 
 func main() {

@@ -36,8 +36,8 @@ func TestParseConfigPath(t *testing.T) {
 	testCases := []struct {
 		directory, project, expected string
 	}{
-		{"~/.tmuxinator", "gmux", homeDir + "/.tmuxinator/gmux.yml"},
-		{"~/.tmuxinator", "gmux.yml", homeDir + "/.tmuxinator/gmux.yml"},
+		{"~/.tmuxinator", "kubemux", homeDir + "/.tmuxinator/kubemux.yml"},
+		{"~/.tmuxinator", "kubemux.yml", homeDir + "/.tmuxinator/kubemux.yml"},
 		{"~/.tmuxinator", "aa", homeDir + "/.tmuxinator/aa.yml"},
 	}
 	for _, tc := range testCases {

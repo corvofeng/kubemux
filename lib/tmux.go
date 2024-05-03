@@ -3,7 +3,7 @@ package lib
 import (
 	"bytes"
 	"fmt"
-	"gmux/lib/asset"
+	"kubemux/lib/asset"
 	"os"
 	"os/exec"
 	"path"

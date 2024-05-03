@@ -1,6 +1,6 @@
 package asset
 
-const GmuxKubeconfig = `
+const KubemuxKubeconfig = `
 name: <%= @settings["name"] %>
 root: ~/
 

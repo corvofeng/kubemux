@@ -1,8 +1,8 @@
 package command
 
 import (
-	"gmux/lib"
-	"gmux/lib/asset"
+	"kubemux/lib"
+	"kubemux/lib/asset"
 	"strings"
 
 	"github.com/sirupsen/logrus"
@@ -28,7 +28,7 @@ func kubeCmd(rootCmd *rootCmd) *cobra.Command {
 }
 
 func runE(c *cobra.Command, args []string) error {
-	projContent := asset.GmuxKubeconfig
+	projContent := asset.KubemuxKubeconfig
 	projContent = lib.RenderERB(projContent, map[string]string{
 		"name":       strings.ReplaceAll(flagKube, ".", "-"),
 		"kubeconfig": flagKube,

@@ -1,4 +1,4 @@
-module gmux
+module kubemux
 
 go 1.20
 

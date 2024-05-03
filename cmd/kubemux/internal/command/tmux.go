@@ -13,12 +13,12 @@ func tmuxCmd() *cobra.Command {
 		Use:     "attch",
 		Aliases: []string{"at"},
 		Args:    cobra.ArbitraryArgs,
-		Short:   "Attach gmux",
+		Short:   "Attach kubemux",
 		RunE: func(c *cobra.Command, args []string) error {
 			fmt.Println(args)
 
 			c.PersistentFlags().BoolVarP(&flagDeAttch, "deattch", "d", false, "If we are in debug mode")
-			_, err := fmt.Printf("gmux version v%s\n", args)
+			_, err := fmt.Printf("kubemux version v%s\n", args)
 			return err
 		},
 	}

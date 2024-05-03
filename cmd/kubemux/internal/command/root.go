@@ -1,7 +1,7 @@
 package command
 
 import (
-	"gmux/lib"
+	"kubemux/lib"
 	"os"
 	"strings"
 
@@ -27,7 +27,7 @@ func Root(logger *log.Logger) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "kubemux",
 		Short: "A command line tool",
-		Long:  "A command line tool for handling gmux commands",
+		Long:  "A command line tool for handling kubemux commands",
 		RunE:  rootCmd.Run,
 	}
 
@@ -75,8 +75,8 @@ func (c *rootCmd) ParseConfig(varMap map[string]string, configPath string) (lib.
 
 func CreateDefaultConfig() lib.Config {
 	config := lib.Config{
-		Name: "gmux-default",
-		Tmux: "tmux -L gmux-default",
+		Name: "kubemux-default",
+		Tmux: "tmux -L kubemux-default",
 		Root: "~/",
 		Windows: []lib.Window{
 			{
@@ -108,8 +108,8 @@ func (c *rootCmd) Run(cmd *cobra.Command, args []string) error {
 	var config lib.Config
 
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		c.Logger.Warn("Although the gmux works without a config file, it is recommended to create one.")
-		c.Logger.Warn("Please refer to https://github.com/corvofeng/gmux")
+		c.Logger.Warn("Although the kubemux works without a config file, it is recommended to create one.")
+		c.Logger.Warn("Please refer to https://github.com/corvofeng/kubemux")
 		config = CreateDefaultConfig()
 	} else {
 		if config, err = c.ParseConfig(varMap, configPath); err != nil {
