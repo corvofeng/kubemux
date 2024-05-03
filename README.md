@@ -16,9 +16,9 @@ brew install corvofeng/tap/gmux
 
 # Linux -- using bin: https://github.com/marcosnils/bin
 bin install https://github.com/corvofeng/gmux ~/usr/bin
-bin ls
-Path                      Version  URL                                Status
-~/usr/bin/gmux  v1.0.1  https://github.com/corvofeng/gmux  OK
+# bin ls
+# Path           Version  URL                                Status
+# ~/usr/bin/gmux  v1.0.1  https://github.com/corvofeng/gmux  OK
 
 # Linux -- using binary
 cd /tmp
