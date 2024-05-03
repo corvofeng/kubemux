@@ -65,9 +65,9 @@ set -ex
 # {{$.Tmux}} set-option -g status-right "#[fg=blue]#(tmux-cpu --no-color)"
 
 # LEFT STATUS
-{{$.Tmux}} set -g status-left-length 100
-{{$.Tmux}} set -g status-left-style default
-{{$.Tmux}} set -g status-left '#(byobu-status tmux_left)'
+# {{$.Tmux}} set -g status-left-length 100
+# {{$.Tmux}} set -g status-left-style default
+# {{$.Tmux}} set -g status-left '#(byobu-status tmux_left)'
 # {{$.Tmux}} set -g status-left "#[fg=colour220]#h\
 #    #[fg=colour196] #(ip addr | grep -e 'state UP' -A 2 | awk '/inet /{printf $2}')\
 #    #[fg=colour39] #(sensors | awk '/CPU/{printf $2}')\
@@ -78,9 +78,9 @@ set -ex
 #    #[default]"
 
 # RIGHT STATUS
-{{$.Tmux}} set -g status-right-length 100
-{{$.Tmux}} set -g status-right-style default
-{{$.Tmux}} set -g status-right '#(byobu-status tmux_right)'
+# {{$.Tmux}} set -g status-right-length 100
+# {{$.Tmux}} set -g status-right-style default
+# {{$.Tmux}} set -g status-right '#(byobu-status tmux_right)'
 # {{$.Tmux}} set -g status-right "#[fg=colour39] #(uptime | awk '{printf \$(NF-2)\" \"\$(NF-1)\" \"\$(NF)}' | tr -d ',')\
 #   #[fg=colour40] %F\
 #   #[fg=colour128] %T\
