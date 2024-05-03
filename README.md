@@ -22,6 +22,7 @@ bin install https://github.com/corvofeng/kubemux ~/usr/bin
 
 # Linux -- using binary
 cd /tmp
+rm kubemux_linux_amd64.tar.gz
 wget https://github.com/corvofeng/kubemux/releases/latest/download/kubemux_linux_amd64.tar.gz
 tar -zxvf kubemux_linux_amd64.tar.gz
 sudo install -v kubemux /usr/local/bin
