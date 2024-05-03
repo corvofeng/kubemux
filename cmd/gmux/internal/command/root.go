@@ -37,6 +37,7 @@ func Root(logger *log.Logger) *cobra.Command {
 	cmd.PersistentFlags().BoolVarP(&flagDebug, "debug", "", false, "If we are in debug mode")
 
 	// cmd.PersistentFlags().StringVarP(&logLevel, "lvl", "l", "INFO", "Specify log level")
+	cmd.AddCommand(completionCmd(cmd))
 	// cmd.AddCommand(tmuxCmd())
 	// cmd.AddCommand(versionCmd())
 	return cmd
@@ -67,6 +68,7 @@ func (c *rootCmd) ParseConfig(varMap map[string]string, configPath string) (lib.
 
 	return config, nil
 }
+
 func CreateDefaultConfig() lib.Config {
 	config := lib.Config{
 		Name: "gmux-default",
