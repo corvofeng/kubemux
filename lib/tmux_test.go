@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"fmt"
 	"os"
 	"testing"
 )
@@ -21,6 +22,13 @@ func TestShellescape(t *testing.T) {
 			t.Errorf("shellescape(%q) = %q; want %q", tc.input, actual, tc.expected)
 		}
 	}
+}
+func TestGetConfigList(t *testing.T) {
+	fmt.Println(GetConfigList("~/.tmuxinator"))
+}
+
+func TestGetKubeConfigList(t *testing.T) {
+	fmt.Println(GetKubeConfigList())
 }
 
 func TestParseConfigPath(t *testing.T) {

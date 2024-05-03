@@ -15,6 +15,54 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+func GetConfigList(flagDirectory string) []string {
+	if strings.HasPrefix(flagDirectory, "~/") {
+		dirname, _ := os.UserHomeDir()
+		flagDirectory = filepath.Join(dirname, flagDirectory[2:])
+	}
+	dirs, err := os.ReadDir(flagDirectory)
+	if os.IsNotExist(err) {
+		log.Error("Can't read", err)
+		return []string{}
+	}
+	configList := []string{}
+	for _, cfg := range dirs {
+		if !strings.HasSuffix(cfg.Name(), ".yml") {
+			continue
+		}
+
+		name := strings.TrimSuffix(cfg.Name(), ".yml")
+		configList = append(
+			configList,
+			fmt.Sprintf("%s\t%s", name, name),
+		)
+	}
+
+	return configList
+}
+
+func GetKubeConfigList() []string {
+	homeDir, _ := os.UserHomeDir()
+	kubeConfigDir := filepath.Join(homeDir, ".kube")
+	dirs, err := os.ReadDir(kubeConfigDir)
+	if os.IsNotExist(err) {
+		log.Error("Can't read", err)
+		return []string{}
+	}
+	configList := []string{}
+	for _, cfg := range dirs {
+		if cfg.IsDir() {
+			continue
+		}
+		configList = append(
+			configList,
+			cfg.Name(),
+		)
+	}
+
+	return configList
+}
+
 func ParseConfigPath(flagDirectory, flagProject string) string {
 
 	if strings.HasPrefix(flagDirectory, "~/") {
