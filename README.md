@@ -24,6 +24,26 @@ sudo install -v gmux /usr/local/bin
 
 ## Usage
 
+### kubeconfig
+
+```bash
+ls ~/.kube
+cache  pve-kube.config
+
+gmux kube --kube pve-kube.config  
+
+# I suggest you add the completion support
+#   source <(gmux completion bash)
+#   source <(gmux completion zsh)
+# or you can add the command into the .bashrc or .zshrc.
+gmux kube --kube <tab>
+```
+
+[![asciicast](https://asciinema.org/a/657555.svg)](https://asciinema.org/a/657555)
+
+
+### tmuxinator
+
 ```bash
 mkdir ~/.tmuxinator
 
