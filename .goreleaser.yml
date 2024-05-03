@@ -8,7 +8,7 @@ builds:
       - linux
       - darwin
     id: "kubemux"
-    binary: km
+    binary: kubemux
     main: ./cmd/gmux
     ldflags:
       - -s -w -X gmux/lib.Version={{.Version}}

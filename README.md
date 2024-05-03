@@ -1,7 +1,7 @@
-# gmux
+# kubemux
 
 
-![629109](https://github.com/corvofeng/gmux/assets/12025071/09293818-40d8-473e-8e6a-aa7b2a790a97)
+![629109](https://github.com/corvofeng/kubemux/assets/12025071/09293818-40d8-473e-8e6a-aa7b2a790a97)
 
 
 A Golang version of [tmuxinator](https://github.com/tmuxinator/tmuxinator)
@@ -12,20 +12,19 @@ A Golang version of [tmuxinator](https://github.com/tmuxinator/tmuxinator)
 
 ```bash
 # MacOS
-brew install corvofeng/tap/gmux
+brew install corvofeng/tap/kubemux
 
 # Linux -- using bin: https://github.com/marcosnils/bin
-bin install https://github.com/corvofeng/gmux ~/usr/bin
+bin install https://github.com/corvofeng/kubemux ~/usr/bin
 # bin ls
 # Path           Version  URL                                Status
-# ~/usr/bin/gmux  v1.0.1  https://github.com/corvofeng/gmux  OK
+# ~/usr/bin/kubemux  v1.0.1  https://github.com/corvofeng/kubemux  OK
 
 # Linux -- using binary
 cd /tmp
-rm -rfv gmux_linux_amd64.tar.gz
-wget https://github.com/corvofeng/gmux/releases/latest/download/gmux_linux_amd64.tar.gz
-tar -zxvf gmux_linux_amd64.tar.gz
-sudo install -v gmux /usr/local/bin
+wget https://github.com/corvofeng/kubemux/releases/latest/download/kubemux_linux_amd64.tar.gz
+tar -zxvf kubemux_linux_amd64.tar.gz
+sudo install -v kubemux /usr/local/bin
 ```
 
 ## Usage
@@ -36,13 +35,13 @@ sudo install -v gmux /usr/local/bin
 ls ~/.kube
 cache  pve-kube.config
 
-gmux kube --kube pve-kube.config
+kubemux kube --kube pve-kube.config
 
 # I suggest you add the completion support
-#   source <(gmux completion bash)
-#   source <(gmux completion zsh)
+#   source <(kubemux completion bash)
+#   source <(kubemux completion zsh)
 # or you can add the command into the .bashrc or .zshrc.
-gmux kube --kube <tab>
+kubemux kube --kube <tab>
 ```
 
 [![asciicast](https://asciinema.org/a/657555.svg)](https://asciinema.org/a/657555)
@@ -54,7 +53,7 @@ gmux kube --kube <tab>
 mkdir ~/.tmuxinator
 
 echo '
-name: gmux
+name: kubemux
 root: "~/"
 windows:
   - p1:
@@ -64,9 +63,9 @@ windows:
     - pwd
     - echo "hello world"
   - p3: htop
-' > ~/.tmuxinator/gmux.yml
+' > ~/.tmuxinator/kubemux.yml
 
-gmux -p gmux
+kubemux -p gmux
 ```
 Here is an example:
 
@@ -78,10 +77,10 @@ Here is an example:
 You can put the tmux args after the `--`.
 
 ```bash
-➜  ~ gmux -p gmux -- -V
+➜  ~ kubemux -p gmux -- -V
 tmux 3.4
 
 # If -d is specified, any other clients attached to the session are detached.
-➜  ~ gmux -p gmux -- at -d
+➜  ~ kubemux -p gmux -- at -d
 ```
 
