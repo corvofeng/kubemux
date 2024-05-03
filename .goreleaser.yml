@@ -7,8 +7,8 @@ builds:
     goos:
       - linux
       - darwin
-    id: "gmux"
-    binary: gmux
+    id: "kubemux"
+    binary: km
     main: ./cmd/gmux
     ldflags:
       - -s -w -X gmux/lib.Version={{.Version}}
@@ -28,27 +28,6 @@ archives:
   #   id: binary
   #   name_template: "{{ .Binary }}_{{ .Os }}_{{ .Arch }}"
 
-# brews:
-#   - tap:
-#       owner: owenthereal
-#       name: homebrew-upterm
-#     commit_author:
-#       name: Owen Ou
-#       email: o@owenou.com
-#     homepage: https://upterm.dev
-#     description: Secure terminal sharing
-#     folder: Formula
-#     license: "Apache 2.0"
-#     custom_block: |
-#       head "https://github.com/owenthereal/upterm.git"
-#     install: |
-#       bin.install "upterm"
-#       prefix.install_metafiles
-#       bash_completion.install "etc/completion/upterm.bash_completion.sh"
-#       zsh_completion.install "etc/completion/upterm.zsh_completion" => "_upterm"
-#       man.install "etc/man/man1"
-#     test: |
-#       assert_match(/Upterm version/, shell_output("#{bin}/upterm version"))
 checksum:
   name_template: 'checksums.txt'
 snapshot:
@@ -61,8 +40,8 @@ changelog:
       - '^test:'
 
 brews:
-- name: gmux
-  homepage: "https://github.com/corvofeng/gmux"
+- name: kubemux
+  homepage: "https://github.com/corvofeng/kubemux"
   repository:
     owner: corvofeng
     name: homebrew-tap
@@ -71,7 +50,7 @@ brews:
 nfpms: #build:linux
   - license: MIT
     maintainer: corvofeng<corvofeng@gmail.com>
-    homepage: "https://github.com/corvofeng/gmux"
+    homepage: "https://github.com/corvofeng/kubemux"
     bindir: /usr
     description: A tmux wrapper like tmuxinator
     file_name_template: '{{ .PackageName }}_{{ .Os }}_{{ .Arch }}{{ with .Arm }}v{{ . }}{{ end }}{{ with .Mips }}_{{ . }}{{ end }}{{ if not (eq .Amd64 "v1") }}{{ .Amd64 }}{{ end }}'

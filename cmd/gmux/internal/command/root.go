@@ -25,7 +25,7 @@ func Root(logger *log.Logger) *cobra.Command {
 		Logger: logger,
 	}
 	cmd := &cobra.Command{
-		Use:   "gmux",
+		Use:   "km",
 		Short: "A command line tool",
 		Long:  "A command line tool for handling gmux commands",
 		RunE:  rootCmd.Run,
