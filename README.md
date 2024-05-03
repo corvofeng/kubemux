@@ -34,7 +34,7 @@ sudo install -v kubemux /usr/local/bin
 
 ```bash
 ls ~/.kube
-cache  pve-kube.config
+# pve-kube.config xxx
 
 kubemux kube --kube pve-kube.config
 
