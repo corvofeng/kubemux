@@ -11,10 +11,16 @@ A Golang version of [tmuxinator](https://github.com/tmuxinator/tmuxinator)
 ## Installation
 
 ```bash
-# Macos
+# MacOS
 brew install corvofeng/tap/gmux
 
-# Linux
+# Linux -- using bin: https://github.com/marcosnils/bin
+bin install https://github.com/corvofeng/gmux ~/usr/bin
+bin ls
+Path                      Version  URL                                Status
+~/usr/bin/gmux  v1.0.1  https://github.com/corvofeng/gmux  OK
+
+# Linux -- using binary
 cd /tmp
 rm -rfv gmux_linux_amd64.tar.gz
 wget https://github.com/corvofeng/gmux/releases/latest/download/gmux_linux_amd64.tar.gz
@@ -30,7 +36,7 @@ sudo install -v gmux /usr/local/bin
 ls ~/.kube
 cache  pve-kube.config
 
-gmux kube --kube pve-kube.config  
+gmux kube --kube pve-kube.config
 
 # I suggest you add the completion support
 #   source <(gmux completion bash)
