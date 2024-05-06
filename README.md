@@ -1,7 +1,7 @@
 # kubemux
 
 
-![629109](https://github.com/corvofeng/kubemux/assets/12025071/09293818-40d8-473e-8e6a-aa7b2a790a97)
+![blog-test](https://github.com/corvofeng/kubemux/assets/12025071/375541b7-927f-485d-bd75-36edc39bbae2)
 
 
 A Golang version of [tmuxinator](https://github.com/tmuxinator/tmuxinator)
