@@ -45,6 +45,7 @@ kubemux kube --kube pve-kube.config
 kubemux kube --kube <tab>
 ```
 
+[![asciicast](https://asciinema.org/a/9lB50c5mndYfl0jBZLaG8ymdg.svg)](https://asciinema.org/a/9lB50c5mndYfl0jBZLaG8ymdg)
 [![asciicast](https://asciinema.org/a/657555.svg)](https://asciinema.org/a/657555)
 
 
@@ -70,7 +71,7 @@ kubemux -p kubemux
 ```
 Here is an example:
 
-[![asciicast](https://asciinema.org/a/lVIIOwzWwFAL611IwUeZpohoy.svg)](https://asciinema.org/a/lVIIOwzWwFAL611IwUeZpohoy)
+[![asciicast](https://asciinema.org/a/6kYCveJwVr4Sggj8QhqlsCKLm.svg)](https://asciinema.org/a/6kYCveJwVr4Sggj8QhqlsCKLm)
 
 
 ### tmux arg support
