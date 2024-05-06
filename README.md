@@ -46,7 +46,6 @@ kubemux kube --kube <tab>
 ```
 
 [![asciicast](https://asciinema.org/a/9lB50c5mndYfl0jBZLaG8ymdg.svg)](https://asciinema.org/a/9lB50c5mndYfl0jBZLaG8ymdg)
-[![asciicast](https://asciinema.org/a/657555.svg)](https://asciinema.org/a/657555)
 
 
 ### tmuxinator
