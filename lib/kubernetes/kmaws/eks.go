@@ -1,5 +1,5 @@
 // Package internal provides wrapper for creating aws sessions
-package aws
+package kmaws
 
 import (
 	"encoding/base64"
@@ -72,13 +72,12 @@ func (c *EKSClient) GetClusters(ch chan<- *cluster.Cluster) {
 
 	close(ch)
 }
-
 func (c *EKSClient) detailCluster(cName string) (*cluster.Cluster, error) {
 	input := &eks.DescribeClusterInput{
 		Name: aws.String(cName),
 	}
+	result, err := c.EKS.DescribeCluster(input)
 
-	result, err := c.EKS.(input)
 	if err != nil {
 		// TODO(mmicu): handle errors better here
 		if aerr, ok := err.(awserr.Error); ok {

@@ -2,10 +2,9 @@ package command
 
 import (
 	"fmt"
+	"kubemux/lib/kubernetes"
+	"kubemux/lib/kubernetes/kmaws"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/eks"
 	"github.com/spf13/cobra"
 )
 
@@ -22,22 +21,37 @@ func awsCmd(rootCmd *rootCmd) *cobra.Command {
 }
 
 func awsCMDExec() {
-	sess, err := session.NewSession(&aws.Config{
-		Region: aws.String("eu-north-1"),
-	})
+	// aws.NewEKS("eu-north-1")
+	k, err := kmaws.NewEKS("eu-north-1")
 	if err != nil {
-		fmt.Println("Error creating session:", err)
-		return
+		fmt.Println("Error creating EKS client:", err)
 	}
 
-	input := &eks.ListClustersInput{}
-	svc := eks.New(sess)
-	svc.ListClustersPages(input, func(page *eks.ListClustersOutput, lastPage bool) bool {
-		for _, cluster := range page.Clusters {
-			fmt.Println(*cluster)
-		}
-		return !lastPage
-	})
+	ch := make(chan *kubernetes.Cluster)
+	go k.GetClusters(ch)
+	clusters := []*kubernetes.Cluster{}
+	for c := range ch {
+		clusters = append(clusters, c)
+		fmt.Println(c.Name)
+	}
+	fmt.Println(clusters)
+
+	// sess, err := session.NewSession(&aws.Config{
+	// 	Region: aws.String("eu-north-1"),
+	// })
+	// if err != nil {
+	// 	fmt.Println("Error creating session:", err)
+	// 	return
+	// }
+
+	// input := &eks.ListClustersInput{}
+	// svc := eks.New(sess)
+	// svc.ListClustersPages(input, func(page *eks.ListClustersOutput, lastPage bool) bool {
+	// 	for _, cluster := range page.Clusters {
+	// 		fmt.Println(*cluster)
+	// 	}
+	// 	return !lastPage
+	// })
 
 	// input = &eks.DescribeClusterInput{}
 	// regions, err := svc.DescribeCluster(input)

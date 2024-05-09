@@ -1,5 +1,5 @@
 // Package internal provides wrapper for creating aws sessions
-package aws
+package kmaws
 
 import (
 	"encoding/base64"
@@ -88,7 +88,7 @@ func (c *mockEKSClient) DescribeCluster(input *eks.DescribeClusterInput) (*eks.D
 			cluster.Arn = &localCluster.ID
 			cluster.Endpoint = &localCluster.Endpoint
 			cluster.Name = &localCluster.Name
-			cluster.Status = &localCluster.Status
+			// cluster.Status = &localCluster.Status
 
 			cert := eks.Certificate{}
 			data := base64.StdEncoding.EncodeToString([]byte(cls.CertificateAuthorityData))
