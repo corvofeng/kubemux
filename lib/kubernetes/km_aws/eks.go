@@ -1,5 +1,5 @@
 // Package internal provides wrapper for creating aws sessions
-package kmaws
+package km_aws
 
 import (
 	"encoding/base64"

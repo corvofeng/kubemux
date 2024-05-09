@@ -5,17 +5,20 @@ import (
 )
 
 type KubernetesClient interface {
-	ListClusters()
-	DescribeCluster()
-	GetKubeconfig()
+	ListClusters() []string
+	DescribeCluster(clusterName string) Cluster
 }
 
 // Cluster is the representation of a K8S Cluster
 // For now it is tailored to AWS, more specifically eks clusters
 type Cluster struct {
 	// Provider                 K8sProvider
-	Name                     string
-	Region                   string
+	Name string
+
+	// For AWS/Tencent Cloud, the region means the region of the cluster
+	// But for BlueKing, the region means
+	Region string
+
 	ID                       string
 	Endpoint                 string
 	CertificateAuthorityData string

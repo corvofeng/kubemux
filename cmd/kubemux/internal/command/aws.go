@@ -3,7 +3,7 @@ package command
 import (
 	"fmt"
 	"kubemux/lib/kubernetes"
-	"kubemux/lib/kubernetes/kmaws"
+	"kubemux/lib/kubernetes/km_aws"
 
 	"github.com/spf13/cobra"
 )
@@ -21,8 +21,7 @@ func awsCmd(rootCmd *rootCmd) *cobra.Command {
 }
 
 func awsCMDExec() {
-	// aws.NewEKS("eu-north-1")
-	k, err := kmaws.NewEKS("eu-north-1")
+	k, err := km_aws.NewEKS("eu-north-1")
 	if err != nil {
 		fmt.Println("Error creating EKS client:", err)
 	}
@@ -32,7 +31,7 @@ func awsCMDExec() {
 	clusters := []*kubernetes.Cluster{}
 	for c := range ch {
 		clusters = append(clusters, c)
-		fmt.Println(c.Name)
+		fmt.Println(c.Name, c.Endpoint)
 	}
 	fmt.Println(clusters)
 
