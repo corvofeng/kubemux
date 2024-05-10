@@ -4,16 +4,37 @@ import (
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
-type KubernetesClient interface {
-	ListClusters() []string
-	DescribeCluster(clusterName string) Cluster
+// Cloud Provider interface
+// The cloud provider like AWS, Google, Azure, etc. should implement this interface
+// They should have their own region and cluster management
+type CloudProvider interface {
+	Init() error
+	ListRegions() ([]string, error)
+
+	// List clusters in all regions
+	ListClusters() ([]Cluster, error)
+
+	// Get the cluster config
+	GetClusterConfig(cluster Cluster) error
+	VerifyCluster(cluster Cluster) (bool, string)
 }
+
+type K8sProvider int
+
+const (
+	None K8sProvider = iota
+	AWS
+	TencentCloud
+	Google
+	Azure
+	DigitalOcean
+)
 
 // Cluster is the representation of a K8S Cluster
 // For now it is tailored to AWS, more specifically eks clusters
 type Cluster struct {
-	// Provider                 K8sProvider
-	Name string
+	Provider K8sProvider
+	Name     string
 
 	// For AWS/Tencent Cloud, the region means the region of the cluster
 	// But for BlueKing, the region means

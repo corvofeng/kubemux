@@ -2,8 +2,8 @@ package command
 
 import (
 	"fmt"
-	"kubemux/lib/kubernetes"
-	"kubemux/lib/kubernetes/km_aws"
+	kubernetes "kubemux/lib/cloud_provider"
+	"kubemux/lib/cloud_provider/km_aws"
 
 	"github.com/spf13/cobra"
 )
@@ -21,6 +21,9 @@ func awsCmd(rootCmd *rootCmd) *cobra.Command {
 }
 
 func awsCMDExec() {
+	var awsProvider km_aws.AWSProvider
+	awsProvider.ListRegions()
+
 	k, err := km_aws.NewEKS("eu-north-1")
 	if err != nil {
 		fmt.Println("Error creating EKS client:", err)
