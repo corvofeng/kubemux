@@ -1,0 +1,47 @@
+site_name: Kubemux Documents
+site_url: https://kubemux.corvo.fun
+
+nav:
+  - Home: index.md
+  # - English:
+  #     - introduction: en/intro.md
+  #     - comments: en/comments.md
+  #     - example snips: en/example_snips.md
+  #     - available_commands: en/available_commands.md
+  #     - available_config : en/available_config.md
+  # - 中文文档:
+  #     - 简介: zh/intro.md
+  #     - 注释功能的使用: zh/comments.md
+  #     - 示例代码片段: zh/example_snips.md
+  #     - Vsnips可用的命令: zh/available_commands.md
+  #     - Vsnips可用的配置项: zh/available_config.md
+  # - About: about.md
+
+theme:
+  name: "material"
+  include_search_page: false
+  search_index_only: true
+  feature:
+    tabs: false
+  language: 'en'
+
+plugins:
+  - search
+
+markdown_extensions:
+  - toc:
+     permalink: True 
+  - admonition
+  - pymdownx.tasklist:
+      custom_checkbox: true
+
+# markdown_extensions:
+#   - admonition
+# 
+
+extra:
+  disqus: 'kubemux'
+  analytics:
+    provider: google
+    property: G-FVREQ6MGWF
+  # search:
