@@ -1,10 +1,19 @@
 site_name: Kubemux Documents
 site_url: https://kubemux.corvo.fun
+repo_url: https://github.com/corvofeng/kubemux
+edit_uri: edit/main/docs/
+
 
 nav:
   - Home: index.md
-  # - English:
-  #     - introduction: en/intro.md
+  - English:
+      - introduction: en/intro.md
+      - why: en/why.md
+      - example: en/example.md
+      - usage:
+        # - en/usage.md
+        - terminator: en/usage/terminator.md
+        - kubeconfig: en/usage/kubeconfig.md
   #     - comments: en/comments.md
   #     - example snips: en/example_snips.md
   #     - available_commands: en/available_commands.md
@@ -21,12 +30,18 @@ theme:
   name: "material"
   include_search_page: false
   search_index_only: true
+  features:
+    - content.code.copy
+    - content.code.select
+    - content.action.edit
   feature:
     tabs: false
   language: 'en'
 
 plugins:
   - search
+  - git-revision-date-localized:
+      enable_creation_date: true
 
 markdown_extensions:
   - toc:
@@ -34,6 +49,15 @@ markdown_extensions:
   - admonition
   - pymdownx.tasklist:
       custom_checkbox: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+
+
 
 # markdown_extensions:
 #   - admonition
