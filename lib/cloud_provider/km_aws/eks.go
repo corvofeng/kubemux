@@ -1,6 +1,8 @@
 // Package internal provides wrapper for creating aws sessions
 package km_aws
 
+// Some code copy from: https://github.com/mateimicu/kdiscover
+
 import (
 	"encoding/base64"
 	"errors"

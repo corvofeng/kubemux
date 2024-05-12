@@ -2,8 +2,14 @@ package command
 
 import (
 	"fmt"
+	kubernetes "kubemux/lib/cloud_provider"
 	"kubemux/lib/cloud_provider/km_aws"
+	"os"
+	"time"
 
+	"github.com/schollz/progressbar/v3"
+
+	"github.com/jedib0t/go-pretty/table"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -37,7 +43,25 @@ func awsCMDExec() {
 		return
 	}
 	fmt.Println(clusters, err)
+	groupedClusters := make(map[string][]*kubernetes.Cluster)
+	for _, c := range clusters {
+		groupedClusters[c.Region] = append(groupedClusters[c.Region], c)
+	}
+	bar := progressbar.Default(int64(len(clusters)))
 
+	t := table.NewWriter()
+	t.SetOutputMirror(os.Stdout)
+	t.AppendHeader(table.Row{"Region", "Name", "ID", "Status"})
+
+	for region, clusterList := range groupedClusters {
+		for _, cluster := range clusterList {
+			t.AppendRow(table.Row{region, cluster.Name, cluster.ID, cluster.Status})
+		}
+		bar.Add(1)
+		time.Sleep(1000 * time.Millisecond) // Simulate loading delay
+	}
+
+	t.Render()
 	// k, err := km_aws.NewEKS("eu-north-1")
 	// if err != nil {
 	// 	fmt.Println("Error creating EKS client:", err)
