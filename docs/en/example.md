@@ -1,5 +1,25 @@
+# Best Practice
 
-## My Template Configuration
+
+## kube-ps1 and fzf
+
+> If you want to use kubectl with zsh, I recommend to use `kube-ps1`
+
+https://github.com/jonmosco/kube-ps1
+
+![kube-ps1](https://raw.githubusercontent.com/jonmosco/kube-ps1/master/img/kube-ps1.gif)
+
+> A good search engine in the terminal
+
+https://github.com/junegunn/fzf
+
+```bash
+git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && \
+    ~/.fzf/install --bin  && ~/.fzf/install --completion --update-rc --key-bindings --no-bash --no-fish  && \
+    grep  -q 'fzf.zsh' ~/.zshrc || echo '[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh' >> ~/.zshrc
+```
+
+## tmuxinator example template
 
 ```yaml
 name: <%= @settings["project"] %>
@@ -30,7 +50,5 @@ windows:
 ```
 
 In addition to modifying the context, you can also add prompts to the terminal PS1, similar to this:
-
-https://github.com/jonmosco/kube-ps1
 
 ![image](https://github.com/corvofeng/kubemux/assets/12025071/e3a5b879-5af0-41ca-b2bf-91496ab8bcd8)
