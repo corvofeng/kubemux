@@ -32,11 +32,15 @@ func (c *EKSClient) String() string {
 	return fmt.Sprintf("EKS Client for region %v", c.Region)
 }
 
-// TODO(mmicu):
-// - test GetClusters function
-// - use assert library in others tests also
 func (c *EKSClient) GetClusters(ch chan<- *cluster.Cluster) {
 	input := &eks.ListClustersInput{}
+
+	// k.EKS.ListClustersPages(&eks.ListClustersInput{}, func(page *eks.ListClustersOutput, lastPage bool) bool {
+	// 	for _, cluster := range page.Clusters {
+	// 		fmt.Println(*cluster)
+	// 	}
+	// 	return !lastPage
+	// })
 
 	err := c.EKS.ListClustersPages(input,
 		func(page *eks.ListClustersOutput, lastPage bool) bool {
@@ -64,9 +68,8 @@ func (c *EKSClient) GetClusters(ch chan<- *cluster.Cluster) {
 				log.WithFields(log.Fields{
 					"svc": c.String(),
 				}).Debug("hit last page")
-				return false
 			}
-			return true
+			return !lastPage
 		})
 
 	if err != nil {
@@ -75,8 +78,6 @@ func (c *EKSClient) GetClusters(ch chan<- *cluster.Cluster) {
 			"svc": c.String(),
 		}).Warn("Can't list clusters")
 	}
-
-	close(ch)
 }
 func (c *EKSClient) detailCluster(cName string) (*cluster.Cluster, error) {
 	input := &eks.DescribeClusterInput{
@@ -141,44 +142,35 @@ func NewEKS(region string) (*EKSClient, error) {
 func (c *AWSProvider) Init() error {
 	return nil
 }
+
 func (c *AWSProvider) ListRegions() ([]string, error) {
-	sess := session.Must(session.NewSession())
+	sess := session.Must(session.NewSession(&aws.Config{
+		Region: aws.String("us-west-1"),
+	}))
 	svc := ec2.New(sess)
-	input := &ec2.DescribeRegionsInput{}
-	result, err := svc.DescribeRegions(input)
+	result, err := svc.DescribeRegions(nil)
 	if err != nil {
-		fmt.Println("Error describing regions:", err)
+		log.WithFields(log.Fields{
+			"error": err.Error(),
+		}).Error("Failed to query aws regions")
 		return []string{}, err
 	}
 
-	fmt.Println("AWS Regions:")
+	regions := []string{}
 	for _, region := range result.Regions {
-		fmt.Println(*region.RegionName)
+		regions = append(regions, *region.RegionName)
 	}
-
-	return []string{}, nil
+	return regions, nil
 }
 
-func (c *AWSProvider) ListClusters() ([]cluster.Cluster, error) {
-	regions, err := c.ListRegions()
-	if err != nil {
-		return []cluster.Cluster{}, err
-	}
+func (c *AWSProvider) ListClusters(regions []string) ([]*cluster.Cluster, error) {
 	var wg sync.WaitGroup
-	clustersChan := make(chan cluster.Cluster)
-
+	clustersChan := make(chan *cluster.Cluster)
 	for _, region := range regions {
 		wg.Add(1)
 		go func(r string) {
 			defer wg.Done()
 			k, err := NewEKS(r)
-			k.EKS.ListClustersPages(&eks.ListClustersInput{}, func(page *eks.ListClustersOutput, lastPage bool) bool {
-				for _, cluster := range page.Clusters {
-					fmt.Println(*cluster)
-				}
-				return !lastPage
-			})
-
 			if err != nil {
 				log.WithFields(log.Fields{
 					"region": r,
@@ -186,32 +178,23 @@ func (c *AWSProvider) ListClusters() ([]cluster.Cluster, error) {
 				}).Error("Failed to create EKS client")
 				return
 			}
-			ch := make(chan *cluster.Cluster)
-			go k.GetClusters(ch)
-			for cls := range ch {
-				log.WithFields(log.Fields{
-					"cluster": cls.Name,
-					"region":  r,
-				}).Info("Found cluster")
-			}
+			log.WithFields(log.Fields{
+				"region": r,
+			}).Debug("Start Query clusters")
+			k.GetClusters(clustersChan)
 		}(region)
 	}
 
-	// 启动一个 Goroutine 关闭通道
 	go func() {
+		// close Goroutine, then close channel
 		wg.Wait()
 		close(clustersChan)
 	}()
 
 	// 从通道中读取结果
-	var allClusters []string
+	var allClusters []*cluster.Cluster
 	for cluster := range clustersChan {
 		allClusters = append(allClusters, cluster)
 	}
-
-	if err := regions.Err(); err != nil {
-		return nil, fmt.Errorf("error paging through EKS clusters: %v", err)
-	}
-
-	return []cluster.Cluster{}, nil
+	return allClusters, nil
 }

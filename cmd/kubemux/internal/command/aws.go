@@ -2,9 +2,9 @@ package command
 
 import (
 	"fmt"
-	kubernetes "kubemux/lib/cloud_provider"
 	"kubemux/lib/cloud_provider/km_aws"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -13,6 +13,9 @@ func awsCmd(rootCmd *rootCmd) *cobra.Command {
 		Use:   "aws",
 		Short: "Display one or many resources",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if flagDebug {
+				log.SetLevel(log.DebugLevel)
+			}
 			awsCMDExec()
 			return nil
 		},
@@ -22,21 +25,32 @@ func awsCmd(rootCmd *rootCmd) *cobra.Command {
 
 func awsCMDExec() {
 	var awsProvider km_aws.AWSProvider
-	awsProvider.ListRegions()
-
-	k, err := km_aws.NewEKS("eu-north-1")
+	regions, err := awsProvider.ListRegions()
 	if err != nil {
-		fmt.Println("Error creating EKS client:", err)
+		fmt.Println("Error listing regions:", err)
+		return
 	}
 
-	ch := make(chan *kubernetes.Cluster)
-	go k.GetClusters(ch)
-	clusters := []*kubernetes.Cluster{}
-	for c := range ch {
-		clusters = append(clusters, c)
-		fmt.Println(c.Name, c.Endpoint)
+	clusters, err := awsProvider.ListClusters(regions)
+	if err != nil {
+		fmt.Println("Error listing clusters:", err)
+		return
 	}
-	fmt.Println(clusters)
+	fmt.Println(clusters, err)
+
+	// k, err := km_aws.NewEKS("eu-north-1")
+	// if err != nil {
+	// 	fmt.Println("Error creating EKS client:", err)
+	// }
+
+	// ch := make(chan *kubernetes.Cluster)
+	// go k.GetClusters(ch)
+	// clusters := []*kubernetes.Cluster{}
+	// for c := range ch {
+	// 	clusters = append(clusters, c)
+	// 	fmt.Println(c.Name, c.Endpoint)
+	// }
+	// fmt.Println(clusters)
 
 	// sess, err := session.NewSession(&aws.Config{
 	// 	Region: aws.String("eu-north-1"),
