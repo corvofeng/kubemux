@@ -54,7 +54,9 @@ func awsCMDExec() error {
 	t.AppendHeader(table.Row{"Region", "Name", "ID", "Status"})
 	for region, clusterList := range groupedClusters {
 		for _, cluster := range clusterList {
-			t.AppendRow(table.Row{region, cluster.Name, cluster.ID, cluster.Status})
+			t.AppendRow(table.Row{
+				region, cluster.Name, cluster.ID, cluster.Status,
+			})
 		}
 	}
 	t.Render()
