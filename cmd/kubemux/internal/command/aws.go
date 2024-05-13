@@ -1,7 +1,6 @@
 package command
 
 import (
-	"fmt"
 	kubernetes "kubemux/lib/cloud_provider"
 	"kubemux/lib/cloud_provider/km_aws"
 	"os"
@@ -46,7 +45,6 @@ func awsCMDExec() error {
 	if flagRegion == "" {
 		regions, err = awsProvider.ListRegions()
 		if err != nil {
-			fmt.Println("Error listing regions:", err)
 			return err
 		}
 	} else {
