@@ -15,7 +15,7 @@ import (
 var flagRegion string
 var flagProgress bool
 
-func awsCmd(rootCmd *rootCmd) *cobra.Command {
+func awsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "aws",
 		Short: "Display AWS EKS clusters",
