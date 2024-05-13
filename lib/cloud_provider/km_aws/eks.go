@@ -165,8 +165,11 @@ func (c *AWSProvider) ListRegions() ([]string, error) {
 	return regions, nil
 }
 
-func (c *AWSProvider) ListClusters(regions []string) ([]*cluster.Cluster, error) {
+func (c *AWSProvider) ListClusters(regions []string, setProgress func(int)) ([]*cluster.Cluster, error) {
 	var wg sync.WaitGroup
+	totalRegions := len(regions)
+	completedRegions := 0
+
 	clustersChan := make(chan *cluster.Cluster)
 	for _, region := range regions {
 		wg.Add(1)
@@ -193,10 +196,14 @@ func (c *AWSProvider) ListClusters(regions []string) ([]*cluster.Cluster, error)
 		close(clustersChan)
 	}()
 
-	// 从通道中读取结果
 	var allClusters []*cluster.Cluster
 	for cluster := range clustersChan {
 		allClusters = append(allClusters, cluster)
+		completedRegions++
+		progress := (completedRegions * 100) / totalRegions
+		if setProgress != nil {
+			setProgress(progress)
+		}
 	}
 	return allClusters, nil
 }
