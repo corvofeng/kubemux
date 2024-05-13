@@ -13,10 +13,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var flagRegion string
+var flagProgress bool
+
 func awsCmd(rootCmd *rootCmd) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "aws",
-		Short: "Display one or many resources",
+		Short: "Display AWS EKS clusters",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if flagDebug {
 				log.SetLevel(log.DebugLevel)
@@ -25,23 +28,41 @@ func awsCmd(rootCmd *rootCmd) *cobra.Command {
 			return nil
 		},
 	}
+	cmd.Flags().StringVarP(&flagRegion, "region", "r", "", "set the region")
+	cmd.RegisterFlagCompletionFunc("region", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var awsProvider km_aws.AWSProvider
+		regions, _ := awsProvider.ListRegions()
+		return regions, cobra.ShellCompDirectiveNoSpace
+	})
+
+	cmd.Flags().BoolVarP(&flagProgress, "progress", "", true, "If we show the progress bar")
 	return cmd
 }
 
 func awsCMDExec() error {
 	var awsProvider km_aws.AWSProvider
-	regions, err := awsProvider.ListRegions()
-	if err != nil {
-		fmt.Println("Error listing regions:", err)
-		return err
+	var regions []string
+	var err error
+	if flagRegion == "" {
+		regions, err = awsProvider.ListRegions()
+		if err != nil {
+			fmt.Println("Error listing regions:", err)
+			return err
+		}
+	} else {
+		regions = []string{flagRegion}
 	}
 
-	bar := progressbar.Default(int64(len(regions)))
-	clusters, err := awsProvider.ListClusters(regions, func(progress int) {
-		bar.Set(progress)
-	})
+	var setProgress func(progress int)
+	if flagProgress {
+		bar := progressbar.Default(int64(len(regions)))
+		setProgress = func(progress int) {
+			bar.Set(progress)
+		}
+	}
+
+	clusters, err := awsProvider.ListClusters(regions, setProgress)
 	if err != nil {
-		fmt.Println("Error listing clusters:", err)
 		return err
 	}
 
