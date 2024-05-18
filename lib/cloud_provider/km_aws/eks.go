@@ -207,10 +207,10 @@ func (c *AWSProvider) ListClusters(regions []string, setProgress func(int)) ([]*
 	c.GenerteClusterConfig(allClusters[0])
 	return allClusters, nil
 }
-func getConfigContext(ctxName string) *clientcmdapi.Context {
+func getConfigContext(cluster, user string) *clientcmdapi.Context {
 	ctx := clientcmdapi.NewContext()
-	ctx.Cluster = ctxName
-	ctx.AuthInfo = ctxName
+	ctx.Cluster = cluster
+	ctx.AuthInfo = user
 	return ctx
 }
 
@@ -220,15 +220,14 @@ func (provider *AWSProvider) GenerteClusterConfig(c *cluster.Cluster) {
 
 	config := clientcmdapi.NewConfig()
 	config.Clusters["example-cluster"] = cfg
-	// config.AuthInfos["example-user"] = c.GenerateAuthInfo(c)
-	config.Contexts["example-context"] = getConfigContext("test")
+
+	authType := getAuthType()
+	config.AuthInfos["example-user"] = getConfigAuthInfo(c, authType)
+	config.Contexts["example-context"] = getConfigContext("example-cluster", "example-user")
 	config.CurrentContext = "example-context"
 
 	err := clientcmd.WriteToFile(*config, "/tmp/kubeconfig")
-
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println()
-
 }

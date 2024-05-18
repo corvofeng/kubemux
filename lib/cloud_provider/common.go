@@ -62,6 +62,6 @@ func defaultGenerateClusterConfig(cls *Cluster) *clientcmdapi.Cluster {
 	return cluster
 }
 
-//	func (cls *Cluster) GetConfigAuthInfo() *clientcmdapi.AuthInfo {
-//		return cls.GenerateAuthInfo(cls)
-//	}
+func (cls *Cluster) GetConfigAuthInfo() *clientcmdapi.AuthInfo {
+	return cls.GenerateAuthInfo(cls)
+}
