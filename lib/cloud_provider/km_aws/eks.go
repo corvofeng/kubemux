@@ -37,13 +37,6 @@ func (c *EKSClient) String() string {
 func (c *EKSClient) GetClusters(ch chan<- *cluster.Cluster) {
 	input := &eks.ListClustersInput{}
 
-	// k.EKS.ListClustersPages(&eks.ListClustersInput{}, func(page *eks.ListClustersOutput, lastPage bool) bool {
-	// 	for _, cluster := range page.Clusters {
-	// 		fmt.Println(*cluster)
-	// 	}
-	// 	return !lastPage
-	// })
-
 	err := c.EKS.ListClustersPages(input,
 		func(page *eks.ListClustersOutput, lastPage bool) bool {
 			log.WithFields(log.Fields{
@@ -101,6 +94,9 @@ func (c *EKSClient) detailCluster(cName string) (*cluster.Cluster, error) {
 		}).Warn(msg)
 		return nil, errors.New(msg)
 	}
+	if result.Cluster.CertificateAuthority.Data == nil {
+		return nil, errors.New("certificate authority is nil")
+	}
 
 	certificatAuthorityData, err := base64.StdEncoding.DecodeString(*result.Cluster.CertificateAuthority.Data)
 	if err != nil {
@@ -118,7 +114,7 @@ func (c *EKSClient) detailCluster(cName string) (*cluster.Cluster, error) {
 	cls.ID = *result.Cluster.Arn
 	cls.Endpoint = *result.Cluster.Endpoint
 	cls.CertificateAuthorityData = string(certificatAuthorityData)
-	// cls.Status = *result.Cluster.Status
+	cls.Status = *result.Cluster.Status
 	cls.Region = c.Region
 
 	return cls, nil
