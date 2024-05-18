@@ -19,6 +19,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/eks/eksiface"
 
 	log "github.com/sirupsen/logrus"
+	"k8s.io/client-go/tools/clientcmd"
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
 type AWSProvider struct {
@@ -201,5 +203,32 @@ func (c *AWSProvider) ListClusters(regions []string, setProgress func(int)) ([]*
 			setProgress(progress)
 		}
 	}
+	fmt.Println(allClusters[0])
+	c.GenerteClusterConfig(allClusters[0])
 	return allClusters, nil
+}
+func getConfigContext(ctxName string) *clientcmdapi.Context {
+	ctx := clientcmdapi.NewContext()
+	ctx.Cluster = ctxName
+	ctx.AuthInfo = ctxName
+	return ctx
+}
+
+func (provider *AWSProvider) GenerteClusterConfig(c *cluster.Cluster) {
+
+	cfg := c.GenerateClusterConfig(c)
+
+	config := clientcmdapi.NewConfig()
+	config.Clusters["example-cluster"] = cfg
+	// config.AuthInfos["example-user"] = c.GenerateAuthInfo(c)
+	config.Contexts["example-context"] = getConfigContext("test")
+	config.CurrentContext = "example-context"
+
+	err := clientcmd.WriteToFile(*config, "/tmp/kubeconfig")
+
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println()
+
 }

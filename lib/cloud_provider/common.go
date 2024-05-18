@@ -44,8 +44,9 @@ type Cluster struct {
 	Endpoint                 string
 	CertificateAuthorityData string
 	Status                   string
-	GenerateClusterConfig    func(cls *Cluster) *clientcmdapi.Cluster
-	GenerateAuthInfo         func(cls *Cluster) *clientcmdapi.AuthInfo
+
+	GenerateClusterConfig func(cls *Cluster) *clientcmdapi.Cluster
+	GenerateAuthInfo      func(cls *Cluster) *clientcmdapi.AuthInfo
 }
 
 func NewCluster() *Cluster {
@@ -60,3 +61,7 @@ func defaultGenerateClusterConfig(cls *Cluster) *clientcmdapi.Cluster {
 	cluster.CertificateAuthorityData = []byte(cls.CertificateAuthorityData)
 	return cluster
 }
+
+//	func (cls *Cluster) GetConfigAuthInfo() *clientcmdapi.AuthInfo {
+//		return cls.GenerateAuthInfo(cls)
+//	}
