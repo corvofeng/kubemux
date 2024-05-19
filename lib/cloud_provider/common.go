@@ -4,25 +4,10 @@ import (
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
-// Cloud Provider interface
-// The cloud provider like AWS, Google, Azure, etc. should implement this interface
-// They should have their own region and cluster management
-type CloudProvider interface {
-	Init() error
-	ListRegions() ([]string, error)
-
-	// List clusters in all regions
-	ListClusters() ([]Cluster, error)
-
-	// Get the cluster config
-	GetClusterConfig(cluster Cluster) error
-	VerifyCluster(cluster Cluster) (bool, string)
-}
-
-type K8sProvider int
+type EnumCloudProvider int
 
 const (
-	None K8sProvider = iota
+	None EnumCloudProvider = iota
 	AWS
 	TencentCloud
 	Google
@@ -30,10 +15,27 @@ const (
 	DigitalOcean
 )
 
-// Cluster is the representation of a K8S Cluster
+// Cloud Provider interface
+// The cloud provider like AWS, Google, Azure, etc. should implement this interface
+// They should have their own region and cluster management
+type CloudProvider interface {
+	Init() error
+	ListRegions() ([]string, error)
+
+	// ListClusters returns a list of clusters in the given regions
+	// It also takes a function to set the progress of the operation
+	ListClusters(regions []string, setProgress func(int)) ([]*CPCluster, error)
+
+	// Get the cluster config
+	GetClusterConfig(cluster *CPCluster) (*clientcmdapi.Config, error)
+
+	// VerifyCluster(cluster CPCluster) (bool, string)
+}
+
+// CPCluster is the representation of a K8S Cloud Provider Cluster
 // For now it is tailored to AWS, more specifically eks clusters
-type Cluster struct {
-	Provider K8sProvider
+type CPCluster struct {
+	Provider EnumCloudProvider
 	Name     string
 
 	// For AWS/Tencent Cloud, the region means the region of the cluster
@@ -45,23 +47,23 @@ type Cluster struct {
 	CertificateAuthorityData string
 	Status                   string
 
-	GenerateClusterConfig func(cls *Cluster) *clientcmdapi.Cluster
-	GenerateAuthInfo      func(cls *Cluster) *clientcmdapi.AuthInfo
+	GenerateClusterConfig func(cls *CPCluster) *clientcmdapi.Cluster
+	GenerateAuthInfo      func(cls *CPCluster) *clientcmdapi.AuthInfo
 }
 
-func NewCluster() *Cluster {
-	return &Cluster{
+func NewCluster() *CPCluster {
+	return &CPCluster{
 		GenerateClusterConfig: defaultGenerateClusterConfig,
 	}
 }
 
-func defaultGenerateClusterConfig(cls *Cluster) *clientcmdapi.Cluster {
+func defaultGenerateClusterConfig(cls *CPCluster) *clientcmdapi.Cluster {
 	cluster := clientcmdapi.NewCluster()
 	cluster.Server = cls.Endpoint
 	cluster.CertificateAuthorityData = []byte(cls.CertificateAuthorityData)
 	return cluster
 }
 
-func (cls *Cluster) GetConfigAuthInfo() *clientcmdapi.AuthInfo {
+func (cls *CPCluster) GetConfigAuthInfo() *clientcmdapi.AuthInfo {
 	return cls.GenerateAuthInfo(cls)
 }

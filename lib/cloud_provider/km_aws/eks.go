@@ -19,7 +19,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/eks/eksiface"
 
 	log "github.com/sirupsen/logrus"
-	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
@@ -27,17 +26,18 @@ type AWSProvider struct {
 	EKS eksiface.EKSAPI
 }
 
-type EKSClient struct {
+type eksClient struct {
 	EKS    eksiface.EKSAPI
 	Region string
 }
 
-func (c *EKSClient) String() string {
+func (c *eksClient) String() string {
 	return fmt.Sprintf("EKS Client for region %v", c.Region)
 }
 
-func (c *EKSClient) GetClusters(ch chan<- *cluster.Cluster) {
+func (c *eksClient) GetClusters(ch chan<- *cluster.CPCluster) {
 	input := &eks.ListClustersInput{}
+	defer close(ch)
 
 	err := c.EKS.ListClustersPages(input,
 		func(page *eks.ListClustersOutput, lastPage bool) bool {
@@ -76,7 +76,8 @@ func (c *EKSClient) GetClusters(ch chan<- *cluster.Cluster) {
 		}).Warn("Can't list clusters")
 	}
 }
-func (c *EKSClient) detailCluster(cName string) (*cluster.Cluster, error) {
+
+func (c *eksClient) detailCluster(cName string) (*cluster.CPCluster, error) {
 	input := &eks.DescribeClusterInput{
 		Name: aws.String(cName),
 	}
@@ -122,7 +123,7 @@ func (c *EKSClient) detailCluster(cName string) (*cluster.Cluster, error) {
 	return cls, nil
 }
 
-func NewEKS(region string) (*EKSClient, error) {
+func NewEKS(region string) (*eksClient, error) {
 	sess, err := session.NewSession(&aws.Config{
 		Region: aws.String(region),
 	})
@@ -133,7 +134,7 @@ func NewEKS(region string) (*EKSClient, error) {
 		}).Error("Failed to create AWS SDK session")
 		return nil, err
 	}
-	return &EKSClient{
+	return &eksClient{
 		EKS:    eks.New(sess),
 		Region: region,
 	}, nil
@@ -163,16 +164,16 @@ func (c *AWSProvider) ListRegions() ([]string, error) {
 	return regions, nil
 }
 
-func (c *AWSProvider) ListClusters(regions []string, setProgress func(int)) ([]*cluster.Cluster, error) {
+func (c *AWSProvider) ListClusters(regions []string, setProgress func(int)) ([]*cluster.CPCluster, error) {
 	var wg sync.WaitGroup
 	totalRegions := len(regions)
 	completedRegions := 0
 
-	clustersChan := make(chan *cluster.Cluster)
+	clustersChan := make(chan *cluster.CPCluster)
 	for _, region := range regions {
 		wg.Add(1)
+		regionCh := make(chan *cluster.CPCluster)
 		go func(r string) {
-			defer wg.Done()
 			k, err := NewEKS(r)
 			if err != nil {
 				log.WithFields(log.Fields{
@@ -184,8 +185,15 @@ func (c *AWSProvider) ListClusters(regions []string, setProgress func(int)) ([]*
 			log.WithFields(log.Fields{
 				"region": r,
 			}).Debug("Start Query clusters")
-			k.GetClusters(clustersChan)
+			k.GetClusters(regionCh)
 		}(region)
+
+		go func(clusterCh chan *cluster.CPCluster) {
+			defer wg.Done()
+			for cls := range regionCh {
+				clusterCh <- cls
+			}
+		}(clustersChan)
 	}
 
 	go func() {
@@ -194,7 +202,7 @@ func (c *AWSProvider) ListClusters(regions []string, setProgress func(int)) ([]*
 		close(clustersChan)
 	}()
 
-	var allClusters []*cluster.Cluster
+	var allClusters []*cluster.CPCluster
 	for cluster := range clustersChan {
 		allClusters = append(allClusters, cluster)
 		completedRegions++
@@ -203,10 +211,10 @@ func (c *AWSProvider) ListClusters(regions []string, setProgress func(int)) ([]*
 			setProgress(progress)
 		}
 	}
-	fmt.Println(allClusters[0])
-	c.GenerteClusterConfig(allClusters[0])
+	// c.GenerteClusterConfig(allClusters[0])
 	return allClusters, nil
 }
+
 func getConfigContext(cluster, user string) *clientcmdapi.Context {
 	ctx := clientcmdapi.NewContext()
 	ctx.Cluster = cluster
@@ -214,8 +222,7 @@ func getConfigContext(cluster, user string) *clientcmdapi.Context {
 	return ctx
 }
 
-func (provider *AWSProvider) GenerteClusterConfig(c *cluster.Cluster) {
-
+func (provider *AWSProvider) GetClusterConfig(c *cluster.CPCluster) (*clientcmdapi.Config, error) {
 	cfg := c.GenerateClusterConfig(c)
 
 	config := clientcmdapi.NewConfig()
@@ -226,8 +233,10 @@ func (provider *AWSProvider) GenerteClusterConfig(c *cluster.Cluster) {
 	config.Contexts["example-context"] = getConfigContext("example-cluster", "example-user")
 	config.CurrentContext = "example-context"
 
-	err := clientcmd.WriteToFile(*config, "/tmp/kubeconfig")
-	if err != nil {
-		fmt.Println(err)
-	}
+	// err := clientcmd.WriteToFile(*config, "/tmp/kubeconfig")
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return nil, err
+	// }
+	return config, nil
 }

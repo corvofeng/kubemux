@@ -27,11 +27,11 @@ func randomString(length int) string {
 	return stringWithCharset(length, charset)
 }
 
-func dummyGenerateAuthInfo(_ *Cluster) *clientcmdapi.AuthInfo {
+func dummyGenerateAuthInfo(_ *CPCluster) *clientcmdapi.AuthInfo {
 	return clientcmdapi.NewAuthInfo()
 }
 
-func getMockClusters(i int, r string) *Cluster {
+func getMockClusters(i int, r string) *CPCluster {
 	c := NewCluster()
 	c.Name = fmt.Sprintf("clucster-name-%v-%v", r, i)
 	c.Region = fmt.Sprintf("clucster-region-%v-%v", r, i)
@@ -41,11 +41,12 @@ func getMockClusters(i int, r string) *Cluster {
 	c.CertificateAuthorityData = fmt.Sprintf("clucster-certificate-authority-data-%v-%v", r, i)
 	c.GenerateClusterConfig = defaultGenerateClusterConfig
 	c.GenerateAuthInfo = dummyGenerateAuthInfo
+	c.Status = "ACTIVE"
 	return c
 }
 
-func GetMockClusters(c int) []*Cluster {
-	d := make([]*Cluster, 0, c)
+func GetMockClusters(c int) []*CPCluster {
+	d := make([]*CPCluster, 0, c)
 	for i := 0; i < c; i++ {
 		r := randomString(lenID)
 		c := getMockClusters(i, r)
@@ -54,8 +55,8 @@ func GetMockClusters(c int) []*Cluster {
 	return d
 }
 
-func GetPredictableMockClusters(c int) []*Cluster {
-	d := make([]*Cluster, 0, c)
+func GetPredictableMockClusters(c int) []*CPCluster {
+	d := make([]*CPCluster, 0, c)
 	for i := 0; i < c; i++ {
 		c := getMockClusters(i, "")
 		d = append(d, c)

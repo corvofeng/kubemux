@@ -64,7 +64,7 @@ func awsCMDExec() error {
 		return err
 	}
 
-	groupedClusters := make(map[string][]*kubernetes.Cluster)
+	groupedClusters := make(map[string][]*kubernetes.CPCluster)
 	for _, c := range clusters {
 		groupedClusters[c.Region] = append(groupedClusters[c.Region], c)
 	}

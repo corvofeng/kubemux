@@ -73,7 +73,7 @@ var (
 	}
 )
 
-func getConfigAuthInfo(cls *cluster.Cluster, authType AuthType) *clientcmdapi.AuthInfo {
+func getConfigAuthInfo(cls *cluster.CPCluster, authType AuthType) *clientcmdapi.AuthInfo {
 	authInfo := clientcmdapi.NewAuthInfo()
 	args := make([]string, len(options[authType]))
 	copy(args, options[authType])

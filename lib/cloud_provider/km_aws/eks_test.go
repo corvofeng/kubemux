@@ -8,7 +8,7 @@ import (
 	"io/ioutil"
 	"testing"
 
-	cluster "kubemux/lib/kubernetes"
+	cluster "kubemux/lib/cloud_provider"
 
 	"github.com/aws/aws-sdk-go/service/eks"
 	"github.com/aws/aws-sdk-go/service/eks/eksiface"
@@ -22,7 +22,7 @@ var update = flag.Bool("update", false, "update .golden files")
 type mockEKSClient struct {
 	eksiface.EKSAPI
 	// The clusters we need to return
-	Clusters []*cluster.Cluster
+	Clusters []*cluster.CPCluster
 
 	// What is the size of the pages
 	PageSize int
@@ -37,6 +37,10 @@ type mockEKSClient struct {
 
 	ListCallCount     int
 	DescribeCallCount int
+}
+
+func TestVerifyIfImplementCloudProvider(t *testing.T) {
+	var _ cluster.CloudProvider = (*AWSProvider)(nil)
 }
 
 // TODO(mmicu): implement DescribeCluster and ListClustersPages
@@ -88,7 +92,7 @@ func (c *mockEKSClient) DescribeCluster(input *eks.DescribeClusterInput) (*eks.D
 			cluster.Arn = &localCluster.ID
 			cluster.Endpoint = &localCluster.Endpoint
 			cluster.Name = &localCluster.Name
-			// cluster.Status = &localCluster.Status
+			cluster.Status = &localCluster.Status
 
 			cert := eks.Certificate{}
 			data := base64.StdEncoding.EncodeToString([]byte(cls.CertificateAuthorityData))
@@ -240,7 +244,12 @@ var cases = []testCase{
 func TestGetClustersNoFailure(t *testing.T) {
 	t.Parallel()
 	log.SetOutput(ioutil.Discard)
+	// cnt := 1
 	for _, tt := range cases {
+		// if cnt == 2 {
+		// 	break
+		// }
+		// cnt += 1
 		client := tt.Client
 		describeErrorCount := 0
 		for k := range tt.Client.ErrorOnDescribe {
@@ -260,13 +269,13 @@ func TestGetClustersNoFailure(t *testing.T) {
 			describeErrorCount, listErrorCount,
 		)
 		t.Run(testname, func(t *testing.T) {
-			ch := make(chan *cluster.Cluster)
-			c := EKSClient{
+			ch := make(chan *cluster.CPCluster)
+			c := eksClient{
 				EKS:    &client,
 				Region: tt.Region,
 			}
 			go c.GetClusters(ch)
-			clusters := []*cluster.Cluster{}
+			clusters := []*cluster.CPCluster{}
 			for c := range ch {
 				clusters = append(clusters, c)
 			}
@@ -334,13 +343,13 @@ func TestGetClustersListFailure(t *testing.T) {
 			describeErrorCount, listErrorCount,
 		)
 		t.Run(testname, func(t *testing.T) {
-			ch := make(chan *cluster.Cluster)
-			c := EKSClient{
+			ch := make(chan *cluster.CPCluster)
+			c := eksClient{
 				EKS:    &client,
 				Region: tt.Region,
 			}
 			go c.GetClusters(ch)
-			clusters := []*cluster.Cluster{}
+			clusters := []*cluster.CPCluster{}
 			for c := range ch {
 				clusters = append(clusters, c)
 			}
