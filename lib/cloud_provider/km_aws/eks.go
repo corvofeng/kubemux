@@ -224,7 +224,6 @@ func (c *AWSProvider) ListClusters(regions []string, setProgress func(int)) ([]*
 			setProgress(progress)
 		}
 	}
-	// c.GenerteClusterConfig(allClusters[0])
 	return allClusters, nil
 }
 
