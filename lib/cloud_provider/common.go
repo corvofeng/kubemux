@@ -46,7 +46,7 @@ type CloudProvider interface {
 	ListClusters(regions []string, setProgress func(int)) ([]*CPCluster, error)
 
 	// Get the cluster config
-	GetKubeconfig(cluster *CPCluster) (*clientcmdapi.Config, error)
+	SaveKubeconfig(cluster *CPCluster, configPath string) (*clientcmdapi.Config, error)
 
 	// Check if cluster config is modified or expired
 	// VerifyCluster(cluster CPCluster) (bool, string)

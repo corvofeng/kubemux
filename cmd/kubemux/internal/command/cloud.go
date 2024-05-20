@@ -164,7 +164,12 @@ func traverseConfigPath(cloud string) (map[string][]string, error) {
 }
 
 func fetchAllClusters(cloud string, showProgress bool, regions []string) ([]*kubernetes.CPCluster, error) {
-	var awsProvider km_aws.AWSProvider
+	// var awsProvider
+	providerMap := map[string]kubernetes.CloudProvider{
+		"aws": &km_aws.AWSProvider{},
+	}
+	awsProvider := providerMap["aws"]
+
 	var err error
 	if len(regions) == 0 {
 		regions, err = awsProvider.ListRegions()
