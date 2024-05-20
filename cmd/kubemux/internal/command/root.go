@@ -44,6 +44,7 @@ func Root(logger *log.Logger) *cobra.Command {
 	cmd.AddCommand(kubeCmd(rootCmd))
 	// cmd.AddCommand(tmuxCmd())
 	cmd.AddCommand(versionCmd())
+	cmd.AddCommand(awsCmd())
 	return cmd
 }
 

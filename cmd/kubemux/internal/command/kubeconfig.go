@@ -1,6 +1,7 @@
 package command
 
 import (
+	"fmt"
 	"kubemux/lib"
 	"kubemux/lib/asset"
 	"strings"
@@ -31,7 +32,7 @@ func runE(c *cobra.Command, args []string) error {
 	projContent := asset.KubemuxKubeconfig
 	projContent = lib.RenderERB(projContent, map[string]string{
 		"name":       strings.ReplaceAll(flagKube, ".", "-"),
-		"kubeconfig": flagKube,
+		"kubeconfig": fmt.Sprintf("~/.kube/%s", flagKube),
 	})
 	config, err := lib.ParseConfig(projContent)
 	if err != nil {
