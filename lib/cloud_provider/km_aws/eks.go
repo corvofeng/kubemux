@@ -229,16 +229,18 @@ func (c *AWSProvider) ListClusters(regions []string, setProgress func(int)) ([]*
 	return allClusters, nil
 }
 
-func (provider *AWSProvider) GetKubeconfig(c *cluster.CPCluster) (*clientcmdapi.Config, error) {
+func (provider *AWSProvider) SaveKubeconfig(
+	c *cluster.CPCluster,
+	configPath string) (*clientcmdapi.Config, error) {
+
 	cfg := c.GenerateClusterConfig(c)
-	config := clientcmdapi.NewConfig()
 	clusterName := c.Name
 	authName := fmt.Sprintf("auth-user-%s", c.Name)
 	contextName := c.Name
-
-	config.Clusters[clusterName] = cfg
-
 	authType := getAuthType()
+
+	config := clientcmdapi.NewConfig()
+	config.Clusters[clusterName] = cfg
 	config.AuthInfos[authName] = getConfigAuthInfo(c, authType)
 	config.Contexts[contextName] = &clientcmdapi.Context{
 		Cluster:  clusterName,
@@ -246,7 +248,7 @@ func (provider *AWSProvider) GetKubeconfig(c *cluster.CPCluster) (*clientcmdapi.
 	}
 	config.CurrentContext = contextName
 
-	err := clientcmd.WriteToFile(*config, "/tmp/kubeconfig")
+	err := clientcmd.WriteToFile(*config, configPath)
 	if err != nil {
 		return nil, err
 	}

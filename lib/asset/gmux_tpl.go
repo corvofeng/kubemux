@@ -6,7 +6,7 @@ root: ~/
 
 socket_name: <%= @settings["name"] %>
 on_project_start:
-  - export KUBECONFIG=~/.kube/<%= @settings["kubeconfig"] %>
+  - export KUBECONFIG=<%= @settings["kubeconfig"] %>
 startup_window: kubectl
 
 windows:

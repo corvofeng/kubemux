@@ -8,6 +8,7 @@ require (
 	github.com/Masterminds/semver v1.5.0
 	github.com/aws/aws-sdk-go v1.52.5
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
+	github.com/kirsle/configdir v0.0.0-20170128060238-e45d2f54772f
 	github.com/schollz/progressbar/v3 v3.14.2
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.0

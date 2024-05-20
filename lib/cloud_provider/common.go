@@ -15,27 +15,6 @@ const (
 	DigitalOcean
 )
 
-// Cloud Provider interface
-// The cloud provider like AWS, Google, Azure, etc. should implement this interface
-// They should have their own region and cluster management
-type CloudProvider interface {
-	Init() error
-	ListRegions() ([]string, error)
-
-	// ListClusters returns a list of clusters in the given regions
-	// It also takes a function to set the progress of the operation
-	ListClusters(regions []string, setProgress func(int)) ([]*CPCluster, error)
-
-	// Get the cluster config
-	GetKubeconfig(cluster *CPCluster) (*clientcmdapi.Config, error)
-
-	// VerifyCluster(cluster CPCluster) (bool, string)
-}
-
-type ClusterManager struct {
-	Providers map[EnumCloudProvider]CloudProvider
-}
-
 // CPCluster is the representation of a K8S Cloud Provider Cluster
 // For now it is tailored to AWS, more specifically eks clusters
 type CPCluster struct {
@@ -53,6 +32,28 @@ type CPCluster struct {
 
 	GenerateClusterConfig func(cls *CPCluster) *clientcmdapi.Cluster
 	GenerateAuthInfo      func(cls *CPCluster) *clientcmdapi.AuthInfo
+}
+
+// Cloud Provider interface
+// The cloud provider like AWS, Google, Azure, etc. should implement this interface
+// They should have their own region and cluster management
+type CloudProvider interface {
+	Init() error
+	ListRegions() ([]string, error)
+
+	// ListClusters returns a list of clusters in the given regions
+	// It also takes a function to set the progress of the operation
+	ListClusters(regions []string, setProgress func(int)) ([]*CPCluster, error)
+
+	// Get the cluster config
+	GetKubeconfig(cluster *CPCluster) (*clientcmdapi.Config, error)
+
+	// Check if cluster config is modified or expired
+	// VerifyCluster(cluster CPCluster) (bool, string)
+}
+
+type ClusterManager struct {
+	Providers map[EnumCloudProvider]CloudProvider
 }
 
 func NewCluster() *CPCluster {
