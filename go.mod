@@ -2,8 +2,6 @@ module kubemux
 
 go 1.22.0
 
-toolchain go1.22.2
-
 require (
 	github.com/Masterminds/semver v1.5.0
 	github.com/aws/aws-sdk-go v1.52.5
