@@ -7,13 +7,13 @@ edit_uri: edit/main/docs/
 nav:
   - Home: index.md
   - English:
-      - introduction: en/intro.md
-      - why: en/why.md
-      - example: en/example.md
-      - usage:
-        # - en/usage.md
-        - terminator: en/usage/terminator.md
-        - kubeconfig: en/usage/kubeconfig.md
+      - Introduction: en/intro.md
+      - Why: en/why.md
+      - Usage: en/usage.md
+      - Example: en/example.md
+      # - usage:
+      #   - terminator: en/usage/terminator.md
+      #   - kubeconfig: en/usage/kubeconfig.md
   #     - comments: en/comments.md
   #     - example snips: en/example_snips.md
   #     - available_commands: en/available_commands.md
@@ -44,6 +44,7 @@ plugins:
       enable_creation_date: true
 
 markdown_extensions:
+  - pymdownx.magiclink
   - toc:
      permalink: True 
   - admonition
