@@ -27,9 +27,13 @@ type CloudProvider interface {
 	ListClusters(regions []string, setProgress func(int)) ([]*CPCluster, error)
 
 	// Get the cluster config
-	GetClusterConfig(cluster *CPCluster) (*clientcmdapi.Config, error)
+	GetKubeconfig(cluster *CPCluster) (*clientcmdapi.Config, error)
 
 	// VerifyCluster(cluster CPCluster) (bool, string)
+}
+
+type ClusterManager struct {
+	Providers map[EnumCloudProvider]CloudProvider
 }
 
 // CPCluster is the representation of a K8S Cloud Provider Cluster

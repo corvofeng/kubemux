@@ -57,7 +57,7 @@ func getAWSCLIversion(cmd []string) *semver.Version {
 		v, _ = semver.NewVersion(match[1])
 		log.WithFields(log.Fields{
 			"version": v,
-		}).Info("Found AWS CLI version")
+		}).Debug("Found AWS CLI version")
 	}
 	return v
 }

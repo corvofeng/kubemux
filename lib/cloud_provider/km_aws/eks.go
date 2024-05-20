@@ -19,6 +19,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/eks/eksiface"
 
 	log "github.com/sirupsen/logrus"
+	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
@@ -224,31 +225,31 @@ func (c *AWSProvider) ListClusters(regions []string, setProgress func(int)) ([]*
 			setProgress(progress)
 		}
 	}
+	c.GetKubeconfig(allClusters[0])
 	return allClusters, nil
 }
 
-func getConfigContext(cluster, user string) *clientcmdapi.Context {
-	ctx := clientcmdapi.NewContext()
-	ctx.Cluster = cluster
-	ctx.AuthInfo = user
-	return ctx
-}
-
-func (provider *AWSProvider) GetClusterConfig(c *cluster.CPCluster) (*clientcmdapi.Config, error) {
+func (provider *AWSProvider) GetKubeconfig(c *cluster.CPCluster) (*clientcmdapi.Config, error) {
 	cfg := c.GenerateClusterConfig(c)
 
 	config := clientcmdapi.NewConfig()
-	config.Clusters["example-cluster"] = cfg
+	clusterName := c.Name
+	authName := fmt.Sprintf("auth-user-%s", c.Name)
+	contextName := c.Name
+
+	config.Clusters[clusterName] = cfg
 
 	authType := getAuthType()
-	config.AuthInfos["example-user"] = getConfigAuthInfo(c, authType)
-	config.Contexts["example-context"] = getConfigContext("example-cluster", "example-user")
-	config.CurrentContext = "example-context"
+	config.AuthInfos[authName] = getConfigAuthInfo(c, authType)
+	config.Contexts[contextName] = &clientcmdapi.Context{
+		Cluster:  clusterName,
+		AuthInfo: authName,
+	}
+	config.CurrentContext = contextName
 
-	// err := clientcmd.WriteToFile(*config, "/tmp/kubeconfig")
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	return nil, err
-	// }
+	err := clientcmd.WriteToFile(*config, "/tmp/kubeconfig")
+	if err != nil {
+		return nil, err
+	}
 	return config, nil
 }
