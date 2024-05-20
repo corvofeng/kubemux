@@ -225,13 +225,12 @@ func (c *AWSProvider) ListClusters(regions []string, setProgress func(int)) ([]*
 			setProgress(progress)
 		}
 	}
-	c.GetKubeconfig(allClusters[0])
+	// c.GetKubeconfig(allClusters[0])
 	return allClusters, nil
 }
 
 func (provider *AWSProvider) GetKubeconfig(c *cluster.CPCluster) (*clientcmdapi.Config, error) {
 	cfg := c.GenerateClusterConfig(c)
-
 	config := clientcmdapi.NewConfig()
 	clusterName := c.Name
 	authName := fmt.Sprintf("auth-user-%s", c.Name)
