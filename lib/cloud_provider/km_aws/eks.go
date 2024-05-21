@@ -14,7 +14,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/eks"
 	"github.com/aws/aws-sdk-go/service/eks/eksiface"
 
@@ -146,21 +145,56 @@ func (c *AWSProvider) Init() error {
 }
 
 func (c *AWSProvider) ListRegions() ([]string, error) {
-	sess := session.Must(session.NewSession(&aws.Config{
-		Region: aws.String("us-west-1"),
-	}))
-	svc := ec2.New(sess)
-	result, err := svc.DescribeRegions(nil)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err.Error(),
-		}).Error("Failed to query aws regions")
-		return []string{}, err
-	}
+	// sess := session.Must(session.NewSession(&aws.Config{
+	// 	Region: aws.String("us-west-1"),
+	// }))
+	// svc := ec2.New(sess)
+	// result, err := svc.DescribeRegions(nil)
+	// if err != nil {
+	// 	log.WithFields(log.Fields{
+	// 		"error": err.Error(),
+	// 	}).Error("Failed to query aws regions")
+	// 	return []string{}, err
+	// }
 
-	regions := []string{}
-	for _, region := range result.Regions {
-		regions = append(regions, *region.RegionName)
+	// regions := []string{}
+	// for _, region := range result.Regions {
+	// 	regions = append(regions, *region.RegionName)
+	// }
+
+	// Generated b:
+	// aws account list-regions |
+	//   jq -r '.Regions[].RegionName' regions.txt | awk 'BEGIN { print "regions := []string{" } { print "    \"" $0 "\"," } END { print "}" }'
+	regions := []string{
+		"af-south-1",
+		"ap-east-1",
+		"ap-northeast-1",
+		"ap-northeast-2",
+		"ap-northeast-3",
+		"ap-south-1",
+		"ap-south-2",
+		"ap-southeast-1",
+		"ap-southeast-2",
+		"ap-southeast-3",
+		"ap-southeast-4",
+		"ca-central-1",
+		"ca-west-1",
+		"eu-central-1",
+		"eu-central-2",
+		"eu-north-1",
+		"eu-south-1",
+		"eu-south-2",
+		"eu-west-1",
+		"eu-west-2",
+		"eu-west-3",
+		"il-central-1",
+		"me-central-1",
+		"me-south-1",
+		"sa-east-1",
+		"us-east-1",
+		"us-east-2",
+		"us-west-1",
+		"us-west-2",
 	}
 	return regions, nil
 }
