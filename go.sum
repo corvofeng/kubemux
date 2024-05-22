@@ -98,6 +98,10 @@ github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/stretchr/testify v1.9.0 h1:HtqpIVDClZ4nwg75+f6Lvsy/wHu+3BoSGCbBAcpTsTg=
 github.com/stretchr/testify v1.9.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
+github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.926 h1:BkDvT4vINdfH9ZVwrALBCePGKyDDizHWXChz6KHmVE8=
+github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.926/go.mod h1:r5r4xbfxSaeR04b166HGsBa/R4U3SueirEUpXGuw+Q0=
+github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/cvm v1.0.926 h1:I/rhxgpFTTkJpLUFOqm3TvLs8o6Z+7FaJdgWjl7KHl0=
+github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/cvm v1.0.926/go.mod h1:A27RdNJsRcAU+SEiygcpZ5IbsZPQVEhN+WRs4qyE9yk=
 github.com/tj/assert v0.0.3 h1:Df/BlaZ20mq6kuai7f5z2TvPFiwC3xaWJSDQNiIS3Rk=
 github.com/tj/assert v0.0.3/go.mod h1:Ne6X72Q+TB1AteidzQncjw9PabbMp4PBMZ1k+vd1Pvk=
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=

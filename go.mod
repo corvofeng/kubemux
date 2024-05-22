@@ -11,6 +11,8 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.9.0
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.926
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/cvm v1.0.926
 	github.com/tj/assert v0.0.3
 	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/client-go v0.30.0
