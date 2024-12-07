@@ -38,6 +38,10 @@ func Root() *cobra.Command {
 	cmd.RegisterFlagCompletionFunc("project", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		return lib.GetConfigList(flagDirectory), cobra.ShellCompDirectiveNoFileComp
 	})
+	cmd.RegisterFlagCompletionFunc("plexer", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"zellij", "tmux"}, cobra.ShellCompDirectiveNoFileComp
+	})
+
 	// cmd.PersistentFlags().StringVarP(&logLevel, "lvl", "l", "INFO", "Specify log level")
 	cmd.AddCommand(completionCmd(cmd))
 	cmd.AddCommand(kubeCmd(rootCmd))
