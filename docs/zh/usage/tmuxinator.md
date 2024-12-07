@@ -1,8 +1,9 @@
 # tmuxinator
 
-<script async src="https://asciinema.org/a/9lB50c5mndYfl0jBZLaG8ymdg.js" id="asciicast-658052" async="true"></script>
 
-## Basic Usage
+<script src="https://asciinema.org/a/6kYCveJwVr4Sggj8QhqlsCKLm.js" id="asciicast-658053" async="true"></script>
+
+## 基本用法
 
 ```
 mkdir ~/.tmuxinator
@@ -23,7 +24,7 @@ windows:
 kubemux -p kubemux
 ```
 
-## ERB template support
+## ERB 模板支持
 
 ```bash
 mkdir -pv ~/.tmuxinator
@@ -43,8 +44,6 @@ windows:
 kubemux -p example-tpl --set project=hello
 ```
 
-> You can use `-p example-tpl` to specify the template file we use
-> The `--set project=hello` means we will replace `<%= @settings["project"] %>` with `hello`
-
-
-
+> 您可以使用 `-p example-tpl` 来指定我们使用的模板文件
+> `--set project=hello` 表示我们将把 `<%= @settings["project"] %>` 替换为 `hello
+`

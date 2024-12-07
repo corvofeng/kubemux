@@ -16,17 +16,15 @@ nav:
         - kubeconfig: en/usage/kubeconfig.md
         - tmuxinator: en/usage/tmuxinator.md
         - zellij: en/usage/zellij.md
-  #     - comments: en/comments.md
-  #     - example snips: en/example_snips.md
-  #     - available_commands: en/available_commands.md
-  #     - available_config : en/available_config.md
   - 中文文档:
       - 简介: zh/intro.md
-  #     - 注释功能的使用: zh/comments.md
-  #     - 示例代码片段: zh/example_snips.md
-  #     - Vsnips可用的命令: zh/available_commands.md
-  #     - Vsnips可用的配置项: zh/available_config.md
-  # - About: about.md
+      - 为什么: zh/why.md
+      - 使用: zh/usage.md
+      - 最佳实践: zh/example.md
+      - 使用详情:
+        - kubeconfig: zh/usage/kubeconfig.md
+        - tmuxinator: zh/usage/tmuxinator.md
+        - zellij: zh/usage/zellij.md
 
 theme:
   name: "material"
