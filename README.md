@@ -42,21 +42,24 @@ sudo install -v kubemux /usr/local/bin
 
 ### Kubeconfig Management
 ```bash
-# List and select kubeconfig files
 ls ~/.kube
+# pve-kube.config xxx
 
 kubemux kube --kube pve-kube.config
 
-# Enable shell completion
-source <(kubemux completion bash)  # for bash
-source <(kubemux completion zsh)   # for zsh
+# I suggest you add the completion support
+#   source <(kubemux completion bash)
+#   source <(kubemux completion zsh)
+# or you can add the command into the .bashrc or .zshrc.
+kubemux kube --kube <tab>
 ```
 
 ### tmuxinator Configuration
+
 ```bash
-# Create a basic tmuxinator config
 mkdir ~/.tmuxinator
-cat > ~/.tmuxinator/kubemux.yml << 'EOF'
+
+echo '
 name: kubemux
 root: "~/"
 windows:
@@ -67,9 +70,8 @@ windows:
     - pwd
     - echo "hello world"
   - p3: htop
-EOF
+' > ~/.tmuxinator/kubemux.yml
 
-# Start the session
 kubemux -p kubemux
 ```
 
@@ -78,8 +80,8 @@ kubemux -p kubemux
 Full documentation is available at: https://kubemux.corvo.fun
 
 Blog posts:
-- https://corvo.fun/2023/12/27/2023-12-26-kubemux%E7%9A%84%E5%BC%80%E5%8F%91%E4%B8%8E%E4%BD%BF%E7%94%A8/
-- https://corvo.myseu.cn/2023/12/27/2023-12-26-kubemux%E7%9A%84%E5%BC%80%E5%8F%91%E4%B8%8E%E4%BD%BF%E7%94%A8/
+- 英文版: https://corvo.fun/2023/12/27/2023-12-26-kubemux%E7%9A%84%E5%BC%80%E5%8F%91%E4%B8%8E%E4%BD%BF%E7%94%A8/
+- 中文版: https://corvo.myseu.cn/2023/12/27/2023-12-26-kubemux%E7%9A%84%E5%BC%80%E5%8F%91%E4%B8%8E%E4%BD%BF%E7%94%A8/
 
 ## Demo
 
