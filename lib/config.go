@@ -9,6 +9,13 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+type Multiplexer string
+
+const (
+	KTmux   Multiplexer = "tmux"
+	KZellij Multiplexer = "zellij"
+)
+
 type Config struct {
 	Name       string `yaml:"name"`
 	Tmux       string `yaml:"-"`
@@ -16,6 +23,8 @@ type Config struct {
 	Debug      bool
 	TmuxArgs   []string
 	SocketName string `yaml:"socket_name"`
+
+	PlexerTool Multiplexer `yaml:"-"`
 
 	/**
 		There are two types of on_project_start:

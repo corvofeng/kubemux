@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"strings"
 	"text/template"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -101,6 +102,54 @@ func TmuxHasSession(sessionName string) bool {
 	return false
 }
 
+func ZellijHasSession(sessionName string) bool {
+	cmd := exec.Command("zellij", "list-sessions", "-n")
+	out, err := cmd.Output()
+	if err != nil {
+		// Handle error if command execution fails
+		// For simplicity, returning false in case of error
+		return false
+	}
+
+	// Split the output into lines and check if sessionName exists
+	outputLines := strings.Split(string(out), "\n")
+	for _, line := range outputLines {
+		if strings.HasPrefix(line, sessionName) {
+			return true
+		}
+	}
+
+	return false
+}
+
+/*
+The zellij may have exited session, it will block the create action, so we need to delete it.
+Zellij list sessions output:
+
+kubemux [Created 0s ago] (EXITED - attach to resurrect)
+*/
+func RemoveExitedZellijSession(logger log.FieldLogger, sessionName string) {
+	cmd := exec.Command("zellij", "list-sessions", "-n")
+	out, err := cmd.Output()
+	if err != nil {
+		// Handle error if command execution fails
+		// For simplicity, returning false in case of error
+		logger.Errorf("Can't list zellij sessions: %v", err)
+	}
+
+	outputLines := strings.Split(string(out), "\n")
+	for _, line := range outputLines {
+		if strings.HasPrefix(line, sessionName) {
+			if strings.Contains(line, "(EXITED - attach to resurrect)") {
+				logger.Debug("Zellij session is exited, we need to delete it")
+				cmd := exec.Command("zellij", "delete-session", sessionName)
+				output, err := cmd.Output()
+				logger.Debugf("Run zellij delete session: %s %v", string(output), err)
+			}
+		}
+	}
+}
+
 // https://github.com/ruby/shellwords
 // https://apidock.com/ruby/v2_5_5/Shellwords/shellescape
 func shellescape(str string) string {
@@ -133,11 +182,40 @@ func ConfigCheck(config *Config) error {
 	return nil
 }
 
+func RenderCMDTemplate(logger log.FieldLogger,
+	baseTemplate string, config *Config, funcMap template.FuncMap,
+	destFile *os.File,
+) *exec.Cmd {
+
+	tmpl, err := template.New("bashScript").
+		Funcs(funcMap).Parse(baseTemplate)
+	if err != nil {
+		logger.Errorf("parsing: %s", err)
+	}
+	var script bytes.Buffer
+	err = tmpl.Execute(&script, config)
+	if err != nil {
+		log.Errorf("execution: %s", err)
+	}
+	logger.Debugf("Start command: %s", script.String())
+
+	if _, err := destFile.Write(script.Bytes()); err != nil {
+		logger.Error(err)
+	}
+	if err := destFile.Chmod(0755); err != nil {
+		logger.Error(err)
+	}
+	destFile.Close()
+	return exec.Command(destFile.Name())
+}
+
 func RunTmux(log log.FieldLogger, config *Config) {
+	// config.PlexerTool = KZellij // Debug
+	// config.PlexerTool = KTmux   // Debug
+
 	funcMap := template.FuncMap{
-		"TmuxHasSession": TmuxHasSession,
-		"Safe":           shellescape,
-		"StringsJoin":    strings.Join,
+		"Safe":        shellescape,
+		"StringsJoin": strings.Join,
 		"Inc": func(i int) int {
 			return i + 1
 		},
@@ -147,44 +225,111 @@ func RunTmux(log log.FieldLogger, config *Config) {
 		return
 	}
 
-	// 创建一个新模板并解析模板字符串
-	tmpl, err := template.New("bashScript").
-		Funcs(funcMap).Parse(asset.BashScriptTemplate)
-	if err != nil {
-		log.Errorf("parsing: %s", err)
-	}
-	// 将配置数据应用于模板
-	var script bytes.Buffer
-	err = tmpl.Execute(&script, config)
-	if err != nil {
-		log.Errorf("execution: %s", err)
-	}
-	log.Debugf(script.String())
-
-	// 将生成的脚本保存到临时文件
-	tmpfile, err := os.CreateTemp("", "tmux-script-*.sh")
+	// how do we create a new session?
+	startCmd, err := os.CreateTemp("", "kubemux-start-script-*.sh")
 	if err != nil {
 		log.Error(err)
 	}
+	defer os.Remove(startCmd.Name())
 
-	defer os.Remove(tmpfile.Name()) // 清理临时文件
-
-	if _, err := tmpfile.Write(script.Bytes()); err != nil {
+	// how do we attach to the session?
+	attachCmd, err := os.CreateTemp("", "kubemux-attach-script-*.sh")
+	if err != nil {
 		log.Error(err)
 	}
-	if err := tmpfile.Chmod(0755); err != nil { // 使脚本可执行
+	defer os.Remove(attachCmd.Name())
+
+	// how do we init the session layout
+	prepareCmd, err := os.CreateTemp("", "kubemux-prepare-script-*.sh")
+	if err != nil {
 		log.Error(err)
 	}
-	tmpfile.Close()
+	defer os.Remove(prepareCmd.Name())
 
-	cmd := exec.Command(tmpfile.Name())
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	if err := cmd.Run(); err != nil {
-		log.Error(err)
+	runStartCmd := func() *exec.Cmd {
+		startTemplate := asset.TmuxSessionCreateTemplate
+		if config.PlexerTool == KZellij {
+			startTemplate = asset.ZellijSessionCreateTemplate
+		}
+		return RenderCMDTemplate(log, startTemplate, config, funcMap, startCmd)
 	}
 
+	runAttachCmd := func() *exec.Cmd {
+		attachTemplate := asset.TmuxSessionAttachTemplate
+		if config.PlexerTool == KZellij {
+			attachTemplate = asset.ZellijSessionAttachTemplate
+		}
+		return RenderCMDTemplate(log, attachTemplate, config, funcMap, attachCmd)
+	}
+
+	runPrepareCmd := func() *exec.Cmd {
+		prepareTemplate := asset.TmuxSessionPrepareTemplate
+		if config.PlexerTool == KZellij {
+			prepareTemplate = asset.ZellijSessionPrepareTemplate
+		}
+		return RenderCMDTemplate(log, prepareTemplate, config, funcMap, prepareCmd)
+	}
+
+	var plexerCmd *exec.Cmd
+	// After we create the session, we need to create related window and panes for user.
+	// since the zellij can't create window and panes if no client attached,
+	// we need to create them in a new goroutine, after we attach the window.
+	// I also modify the code for tmux.
+	var needPrepareSession bool = false
+
+	if config.PlexerTool == KTmux {
+		if !TmuxHasSession(config.Name) {
+			plexerCmd = runStartCmd()
+			needPrepareSession = true
+		} else {
+			plexerCmd = runAttachCmd()
+		}
+
+	} else if config.PlexerTool == KZellij {
+		RemoveExitedZellijSession(log, config.Name) // Ugly, but we need to check it.
+
+		if !ZellijHasSession(config.Name) {
+			plexerCmd = runStartCmd()
+			needPrepareSession = true
+		} else {
+			plexerCmd = runAttachCmd()
+		}
+	}
+
+	if plexerCmd == nil {
+		log.Error("Can't find plexer tool")
+		return
+	}
+
+	plexerCmd.Stdin = os.Stdin
+	plexerCmd.Stdout = os.Stdout
+	plexerCmd.Stderr = os.Stderr
+
+	// 使用 Start 开始命令并等待其完成
+	if err := plexerCmd.Start(); err != nil {
+		panic(err)
+	}
+
+	if needPrepareSession {
+		go func() {
+			time.Sleep(2 * time.Second) // wait for session created
+			log.Debug("Create prepare session command")
+			prepareCmd := runPrepareCmd()
+			prepareCmd.Stdout = os.Stdout
+			prepareCmd.Stderr = os.Stderr
+			if err := prepareCmd.Run(); err != nil {
+				log.Error("Can't run prepare command", err)
+			}
+		}()
+	}
+	log.Debugf("Waiting for command to finish...")
+
+	if err := plexerCmd.Wait(); err != nil {
+		log.Error(err)
+	}
+}
+
+func TryToAttachTmux(logger log.FieldLogger, config *Config) *exec.Cmd {
 	var args []string
 	if len(config.TmuxArgs) == 0 { // default to attach-session
 		args = []string{"-L", config.Name, "attach-session", "-t", config.Name}
@@ -192,20 +337,9 @@ func RunTmux(log log.FieldLogger, config *Config) {
 	} else { // If we have custom args, use them
 		args = []string{"-L", config.Name}
 		args = append(args, config.TmuxArgs...)
-
 	}
 
+	logger.Debugf("Run tmux %s", args)
 	attachCmd := exec.Command("tmux", args...)
-	attachCmd.Stdin = os.Stdin
-	attachCmd.Stdout = os.Stdout
-	attachCmd.Stderr = os.Stderr
-
-	// 使用 Start 开始命令并等待其完成
-	if err := attachCmd.Start(); err != nil {
-		panic(err)
-	}
-	if err := attachCmd.Wait(); err != nil {
-		log.Error(err)
-	}
-
+	return attachCmd
 }

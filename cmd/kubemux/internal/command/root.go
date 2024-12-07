@@ -16,6 +16,7 @@ type rootCmd struct {
 var flagSets []string
 var flagProject string
 var flagDirectory string
+var flagPlexer string
 
 // var logLevel string
 var flagDebug bool
@@ -34,6 +35,7 @@ func Root(logger *log.Logger) *cobra.Command {
 	cmd.PersistentFlags().StringSliceVar(&flagSets, "set", []string{}, "Set key-value pair")
 	cmd.PersistentFlags().StringVarP(&flagProject, "project", "p", "default", "Specify the project we want to use")
 	cmd.PersistentFlags().StringVarP(&flagDirectory, "directory", "", "~/.tmuxinator", "Specify the tmuxinator directory we want to use")
+	cmd.PersistentFlags().StringVarP(&flagPlexer, "plexer", "", "tmux", "Specify the plexer we want to use")
 	cmd.PersistentFlags().BoolVarP(&flagDebug, "debug", "", false, "If we are in debug mode")
 	cmd.RegisterFlagCompletionFunc("project", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		return lib.GetConfigList(flagDirectory), cobra.ShellCompDirectiveNoFileComp
@@ -121,6 +123,12 @@ func (c *rootCmd) Run(cmd *cobra.Command, args []string) error {
 
 	config.TmuxArgs = args
 	config.Debug = flagDebug
+
+	if flagPlexer == "" || flagPlexer == "tmux" {
+		config.PlexerTool = lib.KTmux
+	} else if flagPlexer == "zellij" {
+		config.PlexerTool = lib.KZellij
+	}
 
 	lib.RunTmux(c.Logger, &config)
 
