@@ -16,12 +16,16 @@ A terminal multiplexer wrapper designed for Kubernetes multi-cluster management,
 ## Installation
 
 ### MacOS
+
 bash
+```
 brew install corvofeng/tap/kubemux
 ```
 
 ### Linux
-Using [bin](https://github.com/marcosnils/bin):
+
+Using [https://github.com/marcosnils/bin](https://github.com/marcosnils/bin):
+
 ```bash
 bin install https://github.com/corvofeng/kubemux ~/usr/bin
 ```
@@ -40,6 +44,7 @@ sudo install -v kubemux /usr/local/bin
 ```bash
 # List and select kubeconfig files
 ls ~/.kube
+
 kubemux kube --kube pve-kube.config
 
 # Enable shell completion
@@ -91,4 +96,3 @@ Pull requests are welcome! For major changes, please open an issue first to disc
 ## License
 
 [MIT](LICENSE)
-```
