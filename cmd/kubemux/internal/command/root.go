@@ -10,21 +10,19 @@ import (
 )
 
 type rootCmd struct {
-	Logger *log.Logger
 }
 
 var flagSets []string
 var flagProject string
 var flagDirectory string
 var flagPlexer string
+var flagExtraArgs []string
 
 // var logLevel string
 var flagDebug bool
 
-func Root(logger *log.Logger) *cobra.Command {
-	rootCmd := &rootCmd{
-		Logger: logger,
-	}
+func Root() *cobra.Command {
+	rootCmd := &rootCmd{}
 	cmd := &cobra.Command{
 		Use:   "kubemux",
 		Short: "A command line tool",
@@ -40,13 +38,12 @@ func Root(logger *log.Logger) *cobra.Command {
 	cmd.RegisterFlagCompletionFunc("project", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		return lib.GetConfigList(flagDirectory), cobra.ShellCompDirectiveNoFileComp
 	})
-
 	// cmd.PersistentFlags().StringVarP(&logLevel, "lvl", "l", "INFO", "Specify log level")
 	cmd.AddCommand(completionCmd(cmd))
 	cmd.AddCommand(kubeCmd(rootCmd))
 	// cmd.AddCommand(tmuxCmd())
 	cmd.AddCommand(versionCmd())
-	cmd.AddCommand(awsCmd())
+	cmd.AddCommand(awsCmd(rootCmd))
 	return cmd
 }
 
@@ -57,19 +54,33 @@ func parseKeyValue(arg string) []string {
 	}
 	return nil
 }
+func initExtraArgs(args []string) {
+	flagExtraArgs = args
+}
+func initLogger() {
+	log.SetFormatter(&log.TextFormatter{
+		// DisableColors: true,
+		// FullTimestamp: true,
+		// DisableQuote:  true,
+	})
+
+	if flagDebug {
+		log.SetLevel(log.DebugLevel)
+	}
+}
 
 // inject the variables
 func (c *rootCmd) ParseConfig(varMap map[string]string, configPath string) (lib.Config, error) {
 	content, err := os.ReadFile(configPath)
 	if err != nil {
-		c.Logger.Errorf("Error reading config file: %s %s", configPath, err)
+		log.Errorf("Error reading config file: %s %s", configPath, err)
 		return lib.Config{}, err
 	}
 	projContent := string(content)
 	projContent = lib.RenderERB(projContent, varMap)
 	config, err := lib.ParseConfig(projContent)
 	if err != nil {
-		c.Logger.Errorf("Error parsing config file: %s %s", configPath, err)
+		log.Errorf("Error parsing config file: %s %s", configPath, err)
 		return lib.Config{}, err
 	}
 
@@ -103,34 +114,27 @@ func (c *rootCmd) Run(cmd *cobra.Command, args []string) error {
 		keyValue := parseKeyValue(set)
 		varMap[keyValue[0]] = keyValue[1]
 	}
-	if flagDebug {
-		c.Logger.SetLevel(log.DebugLevel)
-	}
+	initExtraArgs(args)
+	initLogger()
 
 	configPath := lib.ParseConfigPath(flagDirectory, flagProject)
 	var config lib.Config
 
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		c.Logger.Warn("Although the kubemux works without a config file, it is recommended to create one.")
-		c.Logger.Warn("Please refer to https://github.com/corvofeng/kubemux")
+		log.Warn("Although the kubemux works without a config file, it is recommended to create one.")
+		log.Warn("Please refer to https://github.com/corvofeng/kubemux")
 		config = CreateDefaultConfig()
 	} else {
 		if config, err = c.ParseConfig(varMap, configPath); err != nil {
-			c.Logger.Errorf("Parse config error: %s", err)
+			log.Errorf("Parse config error: %s", err)
 			return err
 		}
 	}
-
-	config.TmuxArgs = args
-	config.Debug = flagDebug
-
-	if flagPlexer == "" || flagPlexer == "tmux" {
-		config.PlexerTool = lib.KTmux
-	} else if flagPlexer == "zellij" {
-		config.PlexerTool = lib.KZellij
+	if flagDebug {
+		log.SetLevel(log.DebugLevel)
 	}
 
-	lib.RunTmux(c.Logger, &config)
+	runTmuxWithFlags(&config)
 
 	return nil
 }

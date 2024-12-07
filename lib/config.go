@@ -6,6 +6,8 @@ import (
 	"strings"
 	"text/template"
 
+	log "github.com/sirupsen/logrus"
+
 	"gopkg.in/yaml.v2"
 )
 
@@ -18,7 +20,7 @@ const (
 
 type Config struct {
 	Name       string `yaml:"name"`
-	Tmux       string `yaml:"-"`
+	Tmux       string `yaml:"-"` // 2024-12-07 This is only used in tmux env.
 	Root       string `yaml:"root"`
 	Debug      bool
 	TmuxArgs   []string
@@ -64,7 +66,6 @@ type Config struct {
 
 func ParseConfig(data string) (Config, error) {
 	var config Config
-
 	if err := yaml.Unmarshal([]byte(data), &config); err != nil {
 		return config, err
 	}
@@ -80,6 +81,28 @@ func ParseConfig(data string) (Config, error) {
 		return config, err
 	}
 	return config, nil
+}
+
+func (config *Config) VerifyPlexerTool(flagPlexer string) {
+	var plexerTool Multiplexer
+
+	if flagPlexer == "" {
+		if HasZellij() {
+			plexerTool = KZellij
+		} else if HasTmux() {
+			plexerTool = KTmux
+		} else {
+			log.Fatal("No tmux or zellij found")
+		}
+	} else if flagPlexer == "tmux" {
+		plexerTool = KTmux
+	} else if flagPlexer == "zellij" {
+		plexerTool = KZellij
+	}
+
+	config.PlexerTool = plexerTool
+	log.Debugf("Set plexer tool %s", config.PlexerTool)
+	return
 }
 
 func parseWindowConfig(config *Config) error {

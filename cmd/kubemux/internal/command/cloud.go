@@ -14,7 +14,6 @@ import (
 
 	"github.com/jedib0t/go-pretty/table"
 	"github.com/kirsle/configdir"
-	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -28,14 +27,13 @@ func getConfigPath(cloud string) string {
 	return filepath.Join(configdir.LocalConfig("kubemux"), "kubeconfig", cloud)
 }
 
-func awsCmd() *cobra.Command {
+func awsCmd(rootCmd *rootCmd) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "cloud",
 		Short: "Use cloud provider kubernetes clusters",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if flagDebug {
-				log.SetLevel(log.DebugLevel)
-			}
+			initExtraArgs(args)
+			initLogger()
 			return cloudProviderExec(flagCloudProvider)
 		},
 	}
@@ -97,8 +95,16 @@ func startCluster(cloud, region, cluster string) error {
 	if err != nil {
 		return err
 	}
+	return runTmuxWithFlags(&config)
+}
+
+func runTmuxWithFlags(config *lib.Config) error {
 	config.Debug = flagDebug
-	lib.RunTmux(&logrus.Logger{}, &config)
+	config.TmuxArgs = flagExtraArgs
+	log.Debugf("Get command args: %v", flagExtraArgs)
+
+	config.VerifyPlexerTool(flagPlexer)
+	lib.RunTmux(config)
 	return nil
 }
 

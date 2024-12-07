@@ -16,6 +16,10 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+func HasTmux() bool {
+	return isCommandAvailable("tmux")
+}
+
 func GetConfigList(flagDirectory string) []string {
 	if strings.HasPrefix(flagDirectory, "~/") {
 		dirname, _ := os.UserHomeDir()
@@ -128,23 +132,23 @@ Zellij list sessions output:
 
 kubemux [Created 0s ago] (EXITED - attach to resurrect)
 */
-func RemoveExitedZellijSession(logger log.FieldLogger, sessionName string) {
+func RemoveExitedZellijSession(sessionName string) {
 	cmd := exec.Command("zellij", "list-sessions", "-n")
 	out, err := cmd.Output()
 	if err != nil {
 		// Handle error if command execution fails
 		// For simplicity, returning false in case of error
-		logger.Errorf("Can't list zellij sessions: %v", err)
+		log.Errorf("Can't list zellij sessions: %v", err)
 	}
 
 	outputLines := strings.Split(string(out), "\n")
 	for _, line := range outputLines {
 		if strings.HasPrefix(line, sessionName) {
 			if strings.Contains(line, "(EXITED - attach to resurrect)") {
-				logger.Debug("Zellij session is exited, we need to delete it")
+				log.Debug("Zellij session is exited, we need to delete it")
 				cmd := exec.Command("zellij", "delete-session", sessionName)
 				output, err := cmd.Output()
-				logger.Debugf("Run zellij delete session: %s %v", string(output), err)
+				log.Debugf("Run zellij delete session: %s %v", string(output), err)
 			}
 		}
 	}
@@ -182,7 +186,7 @@ func ConfigCheck(config *Config) error {
 	return nil
 }
 
-func RenderCMDTemplate(logger log.FieldLogger,
+func RenderCMDTemplate(
 	baseTemplate string, config *Config, funcMap template.FuncMap,
 	destFile *os.File,
 ) *exec.Cmd {
@@ -190,26 +194,26 @@ func RenderCMDTemplate(logger log.FieldLogger,
 	tmpl, err := template.New("bashScript").
 		Funcs(funcMap).Parse(baseTemplate)
 	if err != nil {
-		logger.Errorf("parsing: %s", err)
+		log.Errorf("parsing: %s", err)
 	}
 	var script bytes.Buffer
 	err = tmpl.Execute(&script, config)
 	if err != nil {
 		log.Errorf("execution: %s", err)
 	}
-	logger.Debugf("Start command: %s", script.String())
+	log.Debugf("Start command: %s", script.String())
 
 	if _, err := destFile.Write(script.Bytes()); err != nil {
-		logger.Error(err)
+		log.Error(err)
 	}
 	if err := destFile.Chmod(0755); err != nil {
-		logger.Error(err)
+		log.Error(err)
 	}
 	destFile.Close()
 	return exec.Command(destFile.Name())
 }
 
-func RunTmux(log log.FieldLogger, config *Config) {
+func RunTmux(config *Config) {
 	// config.PlexerTool = KZellij // Debug
 	// config.PlexerTool = KTmux   // Debug
 
@@ -251,7 +255,7 @@ func RunTmux(log log.FieldLogger, config *Config) {
 		if config.PlexerTool == KZellij {
 			startTemplate = asset.ZellijSessionCreateTemplate
 		}
-		return RenderCMDTemplate(log, startTemplate, config, funcMap, startCmd)
+		return RenderCMDTemplate(startTemplate, config, funcMap, startCmd)
 	}
 
 	runAttachCmd := func() *exec.Cmd {
@@ -259,7 +263,7 @@ func RunTmux(log log.FieldLogger, config *Config) {
 		if config.PlexerTool == KZellij {
 			attachTemplate = asset.ZellijSessionAttachTemplate
 		}
-		return RenderCMDTemplate(log, attachTemplate, config, funcMap, attachCmd)
+		return RenderCMDTemplate(attachTemplate, config, funcMap, attachCmd)
 	}
 
 	runPrepareCmd := func() *exec.Cmd {
@@ -267,7 +271,7 @@ func RunTmux(log log.FieldLogger, config *Config) {
 		if config.PlexerTool == KZellij {
 			prepareTemplate = asset.ZellijSessionPrepareTemplate
 		}
-		return RenderCMDTemplate(log, prepareTemplate, config, funcMap, prepareCmd)
+		return RenderCMDTemplate(prepareTemplate, config, funcMap, prepareCmd)
 	}
 
 	var plexerCmd *exec.Cmd
@@ -286,7 +290,7 @@ func RunTmux(log log.FieldLogger, config *Config) {
 		}
 
 	} else if config.PlexerTool == KZellij {
-		RemoveExitedZellijSession(log, config.Name) // Ugly, but we need to check it.
+		RemoveExitedZellijSession(config.Name) // Ugly, but we need to check it.
 
 		if !ZellijHasSession(config.Name) {
 			plexerCmd = runStartCmd()
@@ -329,7 +333,7 @@ func RunTmux(log log.FieldLogger, config *Config) {
 	}
 }
 
-func TryToAttachTmux(logger log.FieldLogger, config *Config) *exec.Cmd {
+func TryToAttachTmux(log log.FieldLogger, config *Config) *exec.Cmd {
 	var args []string
 	if len(config.TmuxArgs) == 0 { // default to attach-session
 		args = []string{"-L", config.Name, "attach-session", "-t", config.Name}
@@ -339,7 +343,7 @@ func TryToAttachTmux(logger log.FieldLogger, config *Config) *exec.Cmd {
 		args = append(args, config.TmuxArgs...)
 	}
 
-	logger.Debugf("Run tmux %s", args)
+	log.Debugf("Run tmux %s", args)
 	attachCmd := exec.Command("tmux", args...)
 	return attachCmd
 }
