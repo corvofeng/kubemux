@@ -28,3 +28,16 @@ tar -zxvf kubemux_linux_amd64.tar.gz
 sudo install -v kubemux /usr/local/bin
 ```
 
+### Completion
+
+To enable shell completion, you can use the following commands:
+
+For Bash:
+```bash
+source <(kubemux completion bash)
+```
+
+For Zsh:
+```bash
+source <(kubemux completion zsh)
+```

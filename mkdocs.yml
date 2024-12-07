@@ -11,15 +11,17 @@ nav:
       - Why: en/why.md
       - Usage: en/usage.md
       - Example: en/example.md
-      # - usage:
+      - Usage:
       #   - terminator: en/usage/terminator.md
-      #   - kubeconfig: en/usage/kubeconfig.md
+        - kubeconfig: en/usage/kubeconfig.md
+        - tmuxinator: en/usage/tmuxinator.md
+        - zellij: en/usage/zellij.md
   #     - comments: en/comments.md
   #     - example snips: en/example_snips.md
   #     - available_commands: en/available_commands.md
   #     - available_config : en/available_config.md
-  # - 中文文档:
-  #     - 简介: zh/intro.md
+  - 中文文档:
+      - 简介: zh/intro.md
   #     - 注释功能的使用: zh/comments.md
   #     - 示例代码片段: zh/example_snips.md
   #     - Vsnips可用的命令: zh/available_commands.md
