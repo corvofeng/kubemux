@@ -15,8 +15,6 @@ func tmuxCmd() *cobra.Command {
 		Args:    cobra.ArbitraryArgs,
 		Short:   "Attach kubemux",
 		RunE: func(c *cobra.Command, args []string) error {
-			fmt.Println(args)
-
 			c.PersistentFlags().BoolVarP(&flagDeAttch, "deattch", "d", false, "If we are in debug mode")
 			_, err := fmt.Printf("kubemux version v%s\n", args)
 			return err

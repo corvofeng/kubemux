@@ -1,18 +1,60 @@
 package asset
 
-const BashScriptTemplate = `#!/bin/bash
-
+const TmuxSessionCreateTemplate = `#!/bin/bash
 {{ if $.Debug }}
 set -ex
 {{ end }}
 
 {{$.Tmux}} start-server;
-
-{{if not (TmuxHasSession $.Name)}}
-
 {{- range $i, $cmd:= $.OnProjectStart }}
 {{$cmd}}
 {{- end }}
+{{$.Tmux}} new-session -d -s {{$.Name}}
+{{$.Tmux}} attach-session -t {{.Name}}
+`
+
+const TmuxSessionAttachTemplate = `#!/bin/bash
+{{ if $.Debug }}
+set -ex
+{{ end }}
+# attach to tmux session
+
+{{$.Tmux}} attach-session -t {{.Name}}
+`
+
+const TmuxSessionPrepareTemplate = `#!/bin/bash
+{{- range $i, $window := $.Windows }}
+#====================== start ================================
+# Window: {{$window.Name}}
+{{$winId := Inc $i}}
+
+{{if eq $i 0}}
+{{$.Tmux}} rename-window -t {{$.Name}} {{$window.Name}}
+{{ else }}
+{{$.Tmux}} new-window -c {{$.Root}} -t {{$.Name}}:{{$winId}} -n {{$window.Name}}
+{{- end }}
+
+{{$.Tmux}} select-layout -t {{$.Name}}:{{$window.Name}} main-vertical
+
+{{- range $j, $pane := $window.Panes}}
+{{$.Tmux}} split-window -c {{$window.Root}} -t {{$.Name}}:{{$window.Name}}
+{{$.Tmux}} select-layout -t {{$.Name}}:{{$window.Name}} tiled
+
+{{$panelId := Inc $j}}
+{{- range $k, $cmd := $pane.Commands}}
+{{$.Tmux}} send-keys -t {{$.Name}}:{{$window.Name}}.{{$panelId}} {{$cmd | Safe }} C-m
+{{- end}} # end of commands
+{{- end}} # end of panes
+{{$.Tmux}} kill-pane -t {{$.Name}}:{{$window.Name}}.0
+
+{{- end }} # end of windows
+`
+
+const TmuxSessionPrepareTemplateDel = `#!/bin/bash
+{{ if $.Debug }}
+set -ex
+{{ end }}
+
 
 {{- range $i, $window := $.Windows }}
 #====================== start ================================
@@ -20,10 +62,12 @@ set -ex
 {{$winId := Inc $i}}
 
 {{if eq $i 0}}
-{{$.Tmux}} new-session -d -s {{$.Name}} -n {{$window.Name}}
+{{$.Tmux}} rename-window -t {{$.Name}} {{$window.Name}}
 {{ else }}
 {{$.Tmux}} new-window -c {{$.Root}} -t {{$.Name}}:{{$winId}} -n {{$window.Name}}
 {{- end }}
+
+
 # 设置窗口的根目录
 # {{- if $window.Root}}
 # {{$.Tmux}} send-keys -t {{$.Name}}:{{$i}} "cd {{$window.Root}}" C-m
@@ -41,10 +85,9 @@ set -ex
 {{$.Tmux}} send-keys -t {{$.Name}}:{{$winId}}.{{$panelId}} {{$cmd | Safe }} C-m
 {{- end}}
 
-{{- end}}
 
 # 关闭最后一个多余的pane
-{{$.Tmux}} kill-pane -t {{$.Name}}:{{$winId}}.0
+# {{$.Tmux}} kill-pane -t {{$.Name}}:{{$winId}}.0
 
 #======================  end  ================================
 

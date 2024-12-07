@@ -26,6 +26,8 @@ windows:
 kubemux -p kubemux
 ```
 
+For full docs, please refer to [Tmuxinator](./usage/tmuxinator.md)
+
 ## kubeconfig
 
 As I used this project more, I found that I didn't need excessive customization for tmux, but simply to open the kubeconfig I desired. Therefore, I extended the project itself to better support kubeconfig configurations. I also added support for auto-completion, making it quicker to use your Kubernetes cluster now.
@@ -45,4 +47,6 @@ kubemux kube --kube pve-kube.config
 kubemux kube --kube <tab>
 ```
 
+
+For full docs, please refer to [kubeconfig](./usage/kubeconfig.md)
 

@@ -6,7 +6,6 @@ import (
 	"kubemux/lib/asset"
 	"strings"
 
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -29,6 +28,8 @@ func kubeCmd(rootCmd *rootCmd) *cobra.Command {
 }
 
 func runE(c *cobra.Command, args []string) error {
+	initExtraArgs(args)
+	initLogger()
 	projContent := asset.KubemuxKubeconfig
 	projContent = lib.RenderERB(projContent, map[string]string{
 		"name":       strings.ReplaceAll(flagKube, ".", "-"),
@@ -38,7 +39,6 @@ func runE(c *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	config.Debug = flagDebug
-	lib.RunTmux(&logrus.Logger{}, &config)
-	return nil
+
+	return runTmuxWithFlags(&config)
 }

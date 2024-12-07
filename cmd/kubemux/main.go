@@ -7,15 +7,8 @@ import (
 )
 
 func main() {
-	log.SetFormatter(&log.TextFormatter{
-		DisableColors: true,
-		FullTimestamp: true,
-		DisableQuote:  true,
-	})
 
-	logger := log.New()
-
-	if err := command.Root(logger).Execute(); err != nil {
+	if err := command.Root().Execute(); err != nil {
 		log.Fatal(err)
 	}
 }
