@@ -91,6 +91,10 @@ Blog posts:
 ### tmuxinator Support
 [![asciicast](https://asciinema.org/a/6kYCveJwVr4Sggj8QhqlsCKLm.svg)](https://asciinema.org/a/6kYCveJwVr4Sggj8QhqlsCKLm)
 
+### zellij Support
+[![asciicast](https://asciinema.org/a/693805.svg)](https://asciinema.org/a/693805)
+
+
 ## Contributing
 
 Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
