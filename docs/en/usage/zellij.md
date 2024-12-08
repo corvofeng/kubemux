@@ -8,7 +8,7 @@
 
 ## Install zellij
 
-Please install zellij first, I still use the `bin`, you may refer to https://zellij.dev/
+Please install zellij first, I still use the `bin`, or refer to https://zellij.dev/
 
 ```bash
 # Using bin: https://github.com/marcosnils/bin

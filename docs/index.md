@@ -33,7 +33,6 @@ https://github.com/corvofeng/kubemux
 | 英文文档 (English Documents) | 中文文档 (Chinese Documents) |
 | ---- | ---- |
 | [Introduction](en/intro.md) | [简介](zh/intro.md) |
-| [Comments](en/comments.md) | [评论](zh/comments.md) |
 | [Why](en/why.md) | [原因](zh/why.md) |
 | [Example](en/example.md) | [示例](zh/example.md) |
 | [Usage](en/usage.md) | [使用说明](zh/usage.md) |
