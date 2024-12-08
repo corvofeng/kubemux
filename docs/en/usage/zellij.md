@@ -6,7 +6,9 @@
 <script src="https://asciinema.org/a/693805.js" id="asciicast-693805" async="true"></script>
 
 
-Please install zellij first, I still use the `bin` 
+## Install zellij
+
+Please install zellij first, I still use the `bin`, or refer to https://zellij.dev/
 
 ```bash
 # Using bin: https://github.com/marcosnils/bin
@@ -32,5 +34,25 @@ kubemux -h
 You may set `--plexer` to use the zellij or tmux. 
 However, if you don't set it. the `kubemux` will detect if we can use zellij as a default plexer.
 
+## Example Script
+
+```
+mkdir ~/.tmuxinator
+
+echo '
+name: kubemux
+root: "~/"
+windows:
+  - p1:
+    - ls
+    - pwd
+  - p2:
+    - pwd
+    - echo "hello world"
+  - p3: htop
+' > ~/.tmuxinator/kubemux.yml
+
+kubemux --plexer zellij -p kubemux
+```
 
 
