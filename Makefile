@@ -1,6 +1,6 @@
 SHELL=/bin/bash -o pipefail
 
-.PHONY: docs build client install test vet chart
+.PHONY: docs build build-mcp client install test vet chart
 
 docs:
 	rm -rf docs && mkdir docs
@@ -12,6 +12,11 @@ test:
 
 build:
 	go build -o kubemux ./cmd/kubemux
+
+build-mcp:
+	go build -o kubemux-mcp-server ./mcp-server
+
+build-all: build build-mcp
 
 install:
 	go mod tidy

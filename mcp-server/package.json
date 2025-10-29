@@ -1,0 +1,26 @@
+{
+  "name": "kubemux-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for kubemux - Kubernetes multi-cluster management tool",
+  "main": "kubemux-mcp-server",
+  "bin": {
+    "kubemux-mcp-server": "./kubemux-mcp-server"
+  },
+  "keywords": [
+    "mcp",
+    "kubernetes",
+    "k8s",
+    "tmux",
+    "zellij",
+    "multiplexer",
+    "ai-plugin",
+    "copilot",
+    "gemini"
+  ],
+  "author": "corvofeng",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/corvofeng/kubemux.git"
+  }
+}
