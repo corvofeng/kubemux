@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "kubemux": {
+      "command": "kubemux-mcp-server",
+      "args": [],
+      "env": {}
+    }
+  }
+}

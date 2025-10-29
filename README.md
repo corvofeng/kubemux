@@ -12,6 +12,7 @@ A terminal multiplexer wrapper designed for Kubernetes multi-cluster management,
 - **Zero Dependencies**: Standalone binary with no external dependencies
 - **Shell Completion**: Built-in completion for bash and zsh
 - **Jump Host Support**: Seamlessly work with clusters behind jump hosts
+- **🤖 AI Assistant Integration**: Use kubemux as a plugin for Claude, GitHub Copilot, and other AI assistants via MCP (Model Context Protocol)
 
 ## Installation
 
@@ -74,6 +75,48 @@ windows:
 
 kubemux -p kubemux
 ```
+
+## 🤖 AI Assistant Integration (New!)
+
+Kubemux now supports integration with AI assistants like Claude, GitHub Copilot, and Google Gemini through the Model Context Protocol (MCP).
+
+### Quick Setup
+
+```bash
+# Build the MCP server
+make build-mcp
+
+# Install the MCP server
+sudo cp kubemux-mcp-server /usr/local/bin/
+sudo chmod +x /usr/local/bin/kubemux-mcp-server
+```
+
+### Configure Claude Desktop
+
+Add to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "kubemux": {
+      "command": "kubemux-mcp-server",
+      "args": [],
+      "env": {}
+    }
+  }
+}
+```
+
+### Use with Natural Language
+
+Once configured, you can interact with kubemux using natural language:
+
+- "List all my Kubernetes clusters"
+- "Show me active kubemux sessions"
+- "Create a session for my production cluster"
+- "Connect me to the dev-cluster session"
+
+📚 **Detailed Integration Guide**: See [AI Plugin Integration Guide](docs/AI_PLUGIN_INTEGRATION.md) and [MCP Server README](mcp-server/README.md)
 
 ## Documentation
 
